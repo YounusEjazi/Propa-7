@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TragkonstruktionApplication<tragkonstruktion>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.propa7.tragkonstruktion.TragkonstruktionApplication",
+            "projectName": "tragkonstruktion",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-StudentsystemApplication<tragkonstruktion>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.propa7.StudentsystemApplication",
+            "projectName": "tragkonstruktion",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
