@@ -10,7 +10,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.SECRET_KEY; // Replace with your own secret key
-const ADMIN_SECRET_KEY = proces.env.ADMIN_SECRET_KEY; // Admin secret key
+const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY; // Admin secret key
 
 // Middleware
 app.use(cors());
