@@ -5,20 +5,21 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+require('dotenv').config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = "your_secret_key"; // Replace with your own secret key
-const ADMIN_SECRET_KEY = "Tragkonstruktion"; // Admin secret key
+const SECRET_KEY = process.env.SECRET_KEY; // Replace with your own secret key
+const ADMIN_SECRET_KEY = proces.env.ADMIN_SECRET_KEY; // Admin secret key
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// MongoDB connection
-mongoose.connect("mongodb://localhost:27017/yourDB", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
@@ -74,8 +75,10 @@ app.post("/sign-up", async (req, res) => {
 
 app.post("/login-user", async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
+    console.log("User", user);
     if (!user) return res.status(404).json({ status: "error", message: "User not found" });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
