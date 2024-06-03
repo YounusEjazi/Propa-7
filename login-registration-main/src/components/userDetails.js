@@ -3,7 +3,7 @@ import AdminHome from "./adminHome";
 import UserHome from "./userHome";
 
 export default function UserDetails() {
-  const [userData, setUserData] = useState("");
+  const [userData, setUserData] = useState(null);
   const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function UserDetails() {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: window.localStorage.getItem("token"),
+        Authorization: `Bearer ${window.localStorage.getItem("token")}`,
       },
       body: JSON.stringify({}),
     })
@@ -37,5 +37,5 @@ export default function UserDetails() {
       });
   }, []);
 
-  return admin ? <AdminHome /> : <UserHome userData={userData} />;
+  return userData ? (admin ? <AdminHome /> : <UserHome userData={userData} />) : <div>Loading...</div>;
 }

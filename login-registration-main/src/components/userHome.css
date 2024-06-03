@@ -1,0 +1,173 @@
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .auth-inner {
+    width: 400px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn {
+    margin-top: 10px;
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    box-sizing: border-box;
+  }
+
+  /* src/components/userHome.css */
+.user-profile {
+  margin-left: 25%;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: rgba(238, 238, 238, 0.953);
+  border-radius: 2.5rem;
+}
+
+.user-profile .info {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+}
+
+.user-profile .info .user {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+}
+
+.user-profile .info .user img {
+  height: 10rem;
+  width: 10rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.user-profile .info .user h3 {
+  font-size: 2rem;
+  color: var(--black);
+}
+
+.user-profile .info .user p {
+  font-size: 1.7rem;
+  color: var(--light-color);
+  padding: .3rem 0;
+}
+
+.user-profile .info .box-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.user-profile .info .box-container .box {
+  background-color: var(--light-bg);
+  border-radius: .5rem;
+  padding: 2rem;
+  flex: 1 1 25rem;
+}
+
+.user-profile .info .box-container .box .flex {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.user-profile .info .box-container .box .flex i {
+  font-size: 2rem;
+  color: var(--white);
+  background-color: var(--black);
+  text-align: center;
+  border-radius: .5rem;
+  height: 5rem;
+  width: 5rem;
+  line-height: 4.9rem;
+}
+
+.user-profile .info .box-container .box .flex span {
+  font-size: 2.5rem;
+  color: var(--main-color);
+}
+
+.user-profile .info .box-container .box .flex p {
+  color: var(--light-color);
+  font-size: 1.7rem;
+}
+
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-container h3 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.form-container p {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-container .box {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--light-color);
+  border-radius: 0.5rem;
+}
+
+.form-container .btn {
+  background-color: var(--main-color);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.form-container .btn-secondary {
+  background-color: var(--light-color);
+  color: black;
+  margin-left: 1rem;
+}
+
+  

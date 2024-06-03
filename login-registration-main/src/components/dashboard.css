@@ -1,0 +1,118 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.main-content section {
+  margin-bottom: 20px;
+}
+
+.main-content h2 {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.box-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, fr));
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.box1 {
+  background-color: var(--white);
+  border-radius: .5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.box:hover {
+  transform: translateY(-5px);
+}
+
+.box .title {
+  font-size: 2rem;
+  color: var(--black);
+  text-transform: capitalize;
+  margin-bottom: 1rem;
+}
+
+.box .likes {
+  color: var(--light-color);
+  font-size: 1.7rem;
+  margin-top: 1.5rem;
+}
+
+.box .likes span {
+  color: var(--main-color);
+}
+
+.inline-btn {
+  display: inline-block;
+  background-color: var(--main-color);
+  border-radius: .5rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.7rem;
+  text-decoration: none;
+  color: var(--white);
+  margin-top: 1rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.inline-btn:hover {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+/* Other global styles */
+* {
+  font-family: 'Nunito', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  outline: none;
+  border: none;
+  text-decoration: none;
+}
+
+:root {
+  --main-color: #003384;
+  --red: #e74c3c;
+  --orange: #f39c12;
+  --light-color: #888;
+  --light-bg: #eee;
+  --black: #2c3e50;
+  --white: #fff;
+  --border: .1rem solid rgba(0,0,0,.2);
+}
+
+*::selection {
+  background-color: var(--main-color);
+  color: #fff;
+}
+
+html {
+  font-size: 62.5%;
+  overflow-x: hidden;
+}
+
+@media (max-width: 991px) {
+  html {
+    font-size: 55%;
+  }
+}

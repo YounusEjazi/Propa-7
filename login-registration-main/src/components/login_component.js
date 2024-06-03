@@ -22,9 +22,10 @@ export default function Login() {
       .then((data) => {
         if (data.status === "ok") {
           alert("Login successful");
-          window.localStorage.setItem("token", data.data);
+          window.localStorage.setItem("token", data.data.token);
+          window.localStorage.setItem("user", JSON.stringify(data.data.user));
           window.localStorage.setItem("loggedIn", true);
-          window.location.href = "./userDetails";
+          window.location.href = "./dashboard"; // Change this to the correct path for your dashboard
         } else {
           alert("Login failed. Please check your credentials and try again.");
         }

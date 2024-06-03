@@ -1,26 +1,47 @@
-import React from "react";
-import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
-import Login from "./components/login_component";
-import SignUp from "./components/signup_component";
-import UserDetails from "./components/userDetails";
+import Login from './components/login_component';
+import SignUp from './components/signup_component';
+import UserDetails from './components/userDetails';
+import Dashboard from './components/dashboard';
+import NotFound from './components/notfound';
+import NavBar from './components/navbar';
+import Sidebar from './components/sidebar';
+import ExerciseDetails from './components/exDetails';
+
+function ProtectedRoute({ element: Component, ...rest }) {
+  const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
+  return isLoggedIn ? <Component {...rest} /> : <Navigate to="/sign-in" />;
+}
 
 function App() {
-  const isLoggedIn = window.localStorage.getItem("loggedIn");
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
+  const user = JSON.parse(window.localStorage.getItem('user'));
+
+  const handleNavToggle = () => {
+    setIsNavOpen(!isNavOpen);
+  };
 
   return (
-    <Router>
-      <div className="App">
+    <div className="App">
+      <BrowserRouter>
+        {isLoggedIn && <NavBar handleNavToggle={handleNavToggle} isNavOpen={isNavOpen} />}
+        {isLoggedIn && <Sidebar user={user} isNavOpen={isNavOpen} handleNavToggle={handleNavToggle} />}
         <Routes>
-          <Route exact path="/" element={isLoggedIn === "true" ? <UserDetails /> : <Login />} />
+          <Route path="/" element={isLoggedIn ? <UserDetails /> : <Login />} />
           <Route path="/sign-in" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/userDetails" element={<UserDetails />} />
+          <Route path="/userDetails" element={<ProtectedRoute element={UserDetails} />} />
+          <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
+          <Route path="/exDetails/:id" element={<ProtectedRoute element={ExerciseDetails} />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
-      </div>
-    </Router>
+      </BrowserRouter>
+    </div>
   );
 }
 

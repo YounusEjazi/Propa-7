@@ -1,24 +1,32 @@
+require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = "your_secret_key"; // Replace with your own secret key
-const ADMIN_SECRET_KEY = "Tragkonstruktion"; // Admin secret key
+const SECRET_KEY = process.env.SECRET_KEY;
+const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve uploaded files statically
 
 // MongoDB connection
-mongoose.connect("mongodb://localhost:27017/yourDB", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
@@ -33,22 +41,58 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   userType: String,
+  profilePicture: String,
 });
 
 const User = mongoose.model("User", userSchema);
+
+// Exercise Schema
+const exerciseSchema = new mongoose.Schema({
+  id: { type: String, unique: true },
+  title: String,
+  description: String,
+  img: String,
+});
+
+const Exercise = mongoose.model("Exercise", exerciseSchema);
 
 // Middleware for verifying token
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) return res.status(403).send("Token is required");
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
+    const decoded = jwt.verify(token.split(' ')[1], SECRET_KEY); // Split the Bearer token
     req.user = decoded;
     next();
   } catch (err) {
     return res.status(401).send("Invalid Token");
   }
 };
+
+// Set up multer for storing uploaded files
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${req.user.id}${path.extname(file.originalname)}`);
+  },
+});
+const upload = multer({ storage });
+
+app.post('/upload-profile-picture', verifyToken, upload.single('profilePicture'), async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ status: 'error', message: 'User not found' });
+
+    user.profilePicture = `/uploads/${req.file.filename}`;
+    await user.save();
+
+    res.status(200).json({ status: 'ok', data: user });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 // Routes
 app.post("/sign-up", async (req, res) => {
@@ -84,7 +128,16 @@ app.post("/login-user", async (req, res) => {
     const token = jwt.sign({ id: user._id, email: user.email, userType: user.userType }, SECRET_KEY, {
       expiresIn: "1h",
     });
-    res.status(200).json({ status: "ok", data: token });
+
+    const userData = {
+      fname: user.fname,
+      lname: user.lname,
+      email: user.email,
+      userType: user.userType,
+      profilePicture: user.profilePicture,
+    };
+
+    res.status(200).json({ status: "ok", data: { token, user: userData } });
   } catch (err) {
     res.status(500).send(err);
   }
@@ -116,6 +169,62 @@ app.post("/userData", verifyToken, async (req, res) => {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ status: "error", data: "User not found" });
     res.status(200).json({ status: "ok", data: user });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+app.post("/update-user", verifyToken, async (req, res) => {
+  const { fname, lname, email } = req.body;
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ status: "error", message: "User not found" });
+
+    user.fname = fname;
+    user.lname = lname;
+    user.email = email;
+
+    await user.save();
+    res.status(200).json({ status: "ok", data: user });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Exercise routes
+app.post('/add-exercise', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  const { id, title, description, img } = req.body;
+
+  const newExercise = new Exercise({ id, title, description, img });
+
+  try {
+    await newExercise.save();
+    res.status(200).json({ status: 'ok', message: 'Exercise added successfully' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+app.get('/get-exercises', verifyToken, async (req, res) => {
+  try {
+    const exercises = await Exercise.find();
+    res.status(200).json({ status: 'ok', data: exercises });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+app.get('/get-exercise/:id', verifyToken, async (req, res) => {
+  try {
+    const exercise = await Exercise.findById(req.params.id);
+    if (!exercise) {
+      return res.status(404).json({ status: 'error', message: 'Exercise not found' });
+    }
+    res.status(200).json({ status: 'ok', data: exercise });
   } catch (err) {
     res.status(500).send(err);
   }

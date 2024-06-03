@@ -1,0 +1,49 @@
+/* src/components/navbar.css */
+.navbar {
+  background-color: #006e9d;
+  width: 100%;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  height: 96px;
+  z-index: 1300;
+}
+
+.navbar-brand {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+}
+
+.navbar-links ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.navbar-links ul li {
+  margin: 0 8px;
+}
+
+.navbar-links ul li a, .navbar-links ul li button {
+  color: white;
+  text-decoration: none;
+  padding: 8px;
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.navbar-toggle {
+  display: block;
+  color: white;
+  cursor: pointer;
+}

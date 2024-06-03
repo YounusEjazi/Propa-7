@@ -1,0 +1,72 @@
+/* src/components/sidebar.css */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 60%;
+  max-width: 300px;
+  background-color: #202121;
+  border-right: 1px solid #0009af;
+  padding: 32px 16px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 10;
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+
+
+.sidebar .profile {
+  padding: 10rem 5rem;
+  text-align: center;
+}
+
+.sidebar .profile .image {
+  height: 10rem;
+  width: 10rem;
+  border-radius: 50%;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.sidebar .profile .name {
+  font-size: 2rem;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar .profile .role {
+  font-size: 1.8rem;
+  color: #aaa;
+}
+
+.sidebar .sidebar-nav a {
+  display: table;
+  padding: 2.5rem 1.5rem 3rem;
+  font-size: 2rem;
+}
+
+.sidebar .sidebar-nav a i {
+  margin-right: 1.5rem;
+  color: #c5f600;
+  transition: 0.2s linear;
+}
+
+.sidebar .sidebar-nav a span {
+  color: #aaa;
+}
+
+.sidebar .sidebar-nav a:hover {
+  width: 100%;
+  background-color: #333;
+}
+
+.sidebar .sidebar-nav a:hover i {
+  margin-right: 2.5rem;
+}
