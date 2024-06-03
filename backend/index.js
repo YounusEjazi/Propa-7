@@ -118,8 +118,10 @@ app.post("/sign-up", async (req, res) => {
 
 app.post("/login-user", async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
+    console.log("User", user);
     if (!user) return res.status(404).json({ status: "error", message: "User not found" });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
