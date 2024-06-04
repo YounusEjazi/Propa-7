@@ -153,6 +153,23 @@ const ExerciseDetails = () => {
           </div>
         </div>
       </section>
+
+      <section className="playlist-videos">
+        <h1 className="heading">Unterstützendes Material</h1>
+        <div className="box-container">
+          <a className="box" href="https://www.youtube.com/watch?v=c3zw5Nk8jr8">
+            <i className="fas fa-play"></i>
+            <img src="images/post-1-1.png" alt="" />
+            <h3>complete HTML tutorial (part 01)</h3>
+          </a>
+
+          <a className="box" href="watch-video.html">
+            <i className="fas fa-play"></i>
+            <img src="images/post-1-2.png" alt="" />
+            <h3>complete HTML tutorial (part 02)</h3>
+          </a>
+        </div>
+      </section>
     </DndProvider>
   );
 };
