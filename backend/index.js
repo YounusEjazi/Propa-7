@@ -158,9 +158,15 @@ app.get("/getAllUser", verifyToken, async (req, res) => {
 app.post("/deleteUser", verifyToken, async (req, res) => {
   const { userid } = req.body;
   try {
-    await User.findByIdAndRemove(userid);
-    res.status(200).json({ data: "User deleted successfully" });
+    console.log(`Attempting to delete user with id: ${userid}`);
+    const user = await User.findByIdAndDelete(userid);
+    if (!user) {
+      console.log(`User not found with id: ${userid}`);
+      return res.status(404).json({ status: "error", message: "User not found" });
+    }
+    res.status(200).json({ status: "ok", message: "User deleted successfully" });
   } catch (err) {
+    console.error("Error deleting user:", err);
     res.status(500).send(err);
   }
 });
@@ -200,8 +206,9 @@ app.post('/add-exercise', verifyToken, async (req, res) => {
   }
 
   const { id, title, description, img } = req.body;
+  const date = new Date().toISOString();
 
-  const newExercise = new Exercise({ id, title, description, img });
+  const newExercise = new Exercise({ id, title, description, img, date });
 
   try {
     await newExercise.save();
@@ -210,6 +217,7 @@ app.post('/add-exercise', verifyToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
+
 
 app.get('/get-exercises', verifyToken, async (req, res) => {
   try {
@@ -222,7 +230,7 @@ app.get('/get-exercises', verifyToken, async (req, res) => {
 
 app.get('/get-exercise/:id', verifyToken, async (req, res) => {
   try {
-    const exercise = await Exercise.findById(req.params.id);
+    const exercise = await Exercise.findOne({ id: req.params.id });
     if (!exercise) {
       return res.status(404).json({ status: 'error', message: 'Exercise not found' });
     }
@@ -231,6 +239,29 @@ app.get('/get-exercise/:id', verifyToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+
+//deleting Exercises
+
+app.post('/delete-exercise', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  const { id } = req.body;
+
+  try {
+    const exercise = await Exercise.findOneAndDelete({ id });
+    if (!exercise) {
+      return res.status(404).json({ status: 'error', message: 'Exercise not found' });
+    }
+    res.status(200).json({ status: 'ok', message: 'Exercise deleted successfully' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

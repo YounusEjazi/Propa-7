@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import { Link } from 'react-router-dom';
 import styles from './dashboard.css';
 import { App } from './quiz';
 import Login from './login_component';
+import Exercises from './Exercises';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -26,7 +28,7 @@ function Dashboard() {
               <div className="box1">
                 <h3 className="title">Completed Exercises</h3>
                 <p className="likes">Total: <span>25</span></p>
-                <a href="#" className="inline-btn">View Exercises</a>
+                <Link to={`/Exercises`} className="inline-btn">View Exercise</Link>
                 <p className="likes">Total Mistakes: <span>12</span></p>
                 <a href="#" className="inline-btn">View Mistakes</a>
                 <p className="likes">Total Comments: <span>4</span></p>

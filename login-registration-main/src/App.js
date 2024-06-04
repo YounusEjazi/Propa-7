@@ -11,6 +11,8 @@ import NotFound from './components/notfound';
 import NavBar from './components/navbar';
 import Sidebar from './components/sidebar';
 import ExerciseDetails from './components/exDetails';
+import AddExercise from './components/AddExercise'; // Import the new component
+import Exercises from './components/Exercises';
 
 function ProtectedRoute({ element: Component, ...rest }) {
   const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
@@ -38,6 +40,8 @@ function App() {
           <Route path="/userDetails" element={<ProtectedRoute element={UserDetails} />} />
           <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
           <Route path="/exDetails/:id" element={<ProtectedRoute element={ExerciseDetails} />} />
+          <Route path="/addExercise" element={<ProtectedRoute element={AddExercise} />} /> {/* Add new route */}
+          <Route path="/exercises" element={<ProtectedRoute element={Exercises} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

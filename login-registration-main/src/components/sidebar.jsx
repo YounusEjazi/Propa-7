@@ -1,8 +1,7 @@
-// src/components/Sidebar.js
 import React from 'react';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGraduationCap, faHouse, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faGraduationCap, faHouse, faUser, faPlus } from '@fortawesome/free-solid-svg-icons';
 import './sidebar.css';
 
 function Sidebar({ user, isNavOpen, handleNavToggle }) {
@@ -20,8 +19,11 @@ function Sidebar({ user, isNavOpen, handleNavToggle }) {
       )}
       <nav className="sidebar-nav">
         <Link to="/dashboard" onClick={handleNavToggle}><FontAwesomeIcon icon={faHouse} /><span>Home</span></Link>
-        <Link to="/courses" onClick={handleNavToggle}><FontAwesomeIcon icon={faGraduationCap} /><span>Exercises</span></Link>
+        <Link to="/exercises" onClick={handleNavToggle}><FontAwesomeIcon icon={faGraduationCap} /><span>Exercises</span></Link>
         <Link to="/userDetails" onClick={handleNavToggle}><FontAwesomeIcon icon={faUser} /><span>Profile</span></Link>
+        {user && user.userType === 'Admin' && (
+          <Link to="/addExercise" onClick={handleNavToggle}><FontAwesomeIcon icon={faPlus} /><span>Add Exercise</span></Link>
+        )}
       </nav>
     </div>
   );
