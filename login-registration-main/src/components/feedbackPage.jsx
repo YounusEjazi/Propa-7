@@ -11,57 +11,6 @@ const FeedbackPage = () => {
     JSON.parse(window.localStorage.getItem("user"))
   );
 
-  const feedbackData = [
-    {
-      id: "1",
-      firstName: "Jana",
-      lastName: "Gashi",
-      feedback: "This is shit and it doesn't work!!!",
-      comments: [
-        {
-          firstName: "Fady",
-          lastName: "Tawfik",
-          comment: "Ficken Sie sich!!!",
-        },
-        {
-          firstName: "Fady",
-          lastName: "Tawfik",
-          comment:
-            "Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! ",
-        },
-        {
-          firstName: "Fady",
-          lastName: "Tawfik",
-          comment: "Ficken Sie sich!!!",
-        },
-      ],
-    },
-    {
-      id: "2",
-      firstName: "Jana",
-      lastName: "Gashi",
-      feedback: "This is shit and it doesn't work!!!",
-      comments: [
-        {
-          firstName: "Fady",
-          lastName: "Tawfik",
-          comment: "Ficken Sie sich!!!",
-        },
-        {
-          firstName: "Fady",
-          lastName: "Tawfik",
-          comment:
-            "Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! Ficken Sie sich!!! ",
-        },
-        {
-          firstName: "Fady",
-          lastName: "Tawfik",
-          comment: "Ficken Sie sich!!!",
-        },
-      ],
-    },
-  ];
-
   const getAllFeedback = async () => {
     await fetch(`http://localhost:3000/get-feedback`, {
       method: "GET",
