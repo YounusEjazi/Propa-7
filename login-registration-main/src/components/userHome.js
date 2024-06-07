@@ -35,16 +35,16 @@ export default function UserHome({ userData }) {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
-          alert("User details updated successfully");
+          // alert("User details updated successfully");
           window.localStorage.setItem("user", JSON.stringify(data.data));
           setIsEditing(false); // Exit edit mode after successful update
         } else {
-          alert("Failed to update user details");
+          // alert("Failed to update user details");
         }
       })
       .catch((error) => {
         console.error("Error during update:", error);
-        alert("An error occurred. Please try again later.");
+        // alert("An error occurred. Please try again later.");
       });
   };
 
@@ -62,16 +62,16 @@ export default function UserHome({ userData }) {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
-          alert("Profile picture updated successfully");
+          // alert("Profile picture updated successfully");
           setProfilePicture(data.data.profilePicture);
           window.localStorage.setItem("user", JSON.stringify(data.data));
         } else {
-          alert("Failed to update profile picture");
+          // alert("Failed to update profile picture");
         }
       })
       .catch((error) => {
         console.error("Error during profile picture update:", error);
-        alert("An error occurred. Please try again later.");
+        // alert("An error occurred. Please try again later.");
       });
   };
 

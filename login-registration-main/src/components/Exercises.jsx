@@ -39,9 +39,9 @@ const Exercises = () => {
         .then(data => {
           if (data.status === 'ok') {
             setExercises(exercises.filter(exercise => exercise.id !== id));
-            alert('Exercise deleted successfully');
+            // alert('Exercise deleted successfully');
           } else {
-            alert('Failed to delete exercise');
+            // alert('Failed to delete exercise');
           }
         })
         .catch(error => console.error('Error:', error));

@@ -62,7 +62,7 @@ export default function AdminHome({ userData }) {
       })
         .then((res) => res.json())
         .then((data) => {
-          alert(data.data);
+          // alert(data.data);
           getAllUser();
         });
     } else {

@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { notification } from 'antd';
 
 export default function Login() {
+  const [api, contextHolder] = notification.useNotification();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -21,23 +24,25 @@ export default function Login() {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
-          alert("Login successful");
+          // alert("Login successful");
+          notification.success({message:"Login successful"})
           window.localStorage.setItem("token", data.data.token);
           window.localStorage.setItem("user", JSON.stringify(data.data.user));
           window.localStorage.setItem("loggedIn", true);
           window.location.href = "./dashboard"; // Change this to the correct path for your dashboard
         } else {
-          alert("Login failed. Please check your credentials and try again.");
+          // alert("Login failed. Please check your credentials and try again.");
         }
       })
       .catch((error) => {
         console.error("Error during login:", error);
-        alert("An error occurred. Please try again later.");
+        // alert("An error occurred. Please try again later.");
       });
   }
 
   return (
     <div className="auth-wrapper">
+      { contextHolder }
       <div className="auth-inner">
         <form onSubmit={handleSubmit}>
           <h3>Sign In</h3>

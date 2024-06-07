@@ -24,14 +24,14 @@ export default function UserDetails() {
           }
           setUserData(data.data);
         } else {
-          alert("Failed to fetch user data. Please login again.");
+          // alert("Failed to fetch user data. Please login again.");
           window.localStorage.clear();
           window.location.href = "./sign-in";
         }
       })
       .catch((error) => {
         console.error("Error fetching user data:", error);
-        alert("An error occurred. Please try again later.");
+        // alert("An error occurred. Please try again later.");
         window.localStorage.clear();
         window.location.href = "./sign-in";
       });
