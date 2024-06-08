@@ -8,6 +8,10 @@ const jwt = require("jsonwebtoken");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+// const Material = require('./models/Material'); // Require the Material model
+
+
+
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -55,6 +59,19 @@ const exerciseSchema = new mongoose.Schema({
 });
 
 const Exercise = mongoose.model("Exercise", exerciseSchema);
+
+// Material Schema
+const materialSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  link: String,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const Material = mongoose.model('Material', materialSchema);
 
 // Middleware for verifying token
 const verifyToken = (req, res, next) => {
@@ -218,7 +235,6 @@ app.post('/add-exercise', verifyToken, async (req, res) => {
   }
 });
 
-
 app.get('/get-exercises', verifyToken, async (req, res) => {
   try {
     const exercises = await Exercise.find();
@@ -240,9 +256,7 @@ app.get('/get-exercise/:id', verifyToken, async (req, res) => {
   }
 });
 
-
-//deleting Exercises
-
+// Deleting Exercises
 app.post('/delete-exercise', verifyToken, async (req, res) => {
   if (req.user.userType !== 'Admin') {
     return res.status(403).json({ status: 'error', message: 'Access denied' });
@@ -261,7 +275,43 @@ app.post('/delete-exercise', verifyToken, async (req, res) => {
   }
 });
 
+// Add supportive material (Admin only)
+app.post('/api/materials', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
 
+  const { title, link } = req.body;
+
+  const newMaterial = new Material({ title, link });
+
+  try {
+    await newMaterial.save();
+    res.status(201).json({ status: 'ok', message: 'Material added successfully', data: newMaterial });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get all supportive materials
+app.get('/api/materials', async (req, res) => {
+  try {
+    const materials = await Material.find();
+    res.status(200).json({ status: 'ok', data: materials });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+app.delete('/api/materials', async (req, res) => {
+  try {
+    await Material.deleteOne({_id: req.body.id})
+
+    res.status(200).json({status: 'ok', data: true});
+  } catch (error) {
+    res.status(500).send(err);
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

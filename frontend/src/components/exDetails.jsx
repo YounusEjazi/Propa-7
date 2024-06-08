@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useParams } from 'react-router-dom';
-import './exDetails.css';
+import React, { useEffect, useState } from "react";
+import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { useParams } from "react-router-dom";
+import "./exDetails.css";
 
 const ItemType = {
-  IMAGE: 'image',
+  IMAGE: "image",
 };
 
 const DraggableImage = ({ id, src }) => {
@@ -18,7 +18,11 @@ const DraggableImage = ({ id, src }) => {
   }));
 
   return (
-    <div ref={drag} className="image-wrapper" style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <div
+      ref={drag}
+      className="image-wrapper"
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+    >
       <img src={src} alt="" className="draggable-image" />
     </div>
   );
@@ -34,7 +38,11 @@ const DroppableBox = ({ id, children, onDrop }) => {
   }));
 
   return (
-    <div ref={drop} className="droppable-box" style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
+    <div
+      ref={drop}
+      className="droppable-box"
+      style={{ backgroundColor: isOver ? "lightgreen" : "white" }}
+    >
       {children}
     </div>
   );
@@ -43,34 +51,41 @@ const DroppableBox = ({ id, children, onDrop }) => {
 const ExerciseDetails = () => {
   const { id } = useParams();
   const [exercise, setExercise] = useState();
+  const [materials, setMaterials] = useState([]);
   const [boxes, setBoxes] = useState({
     box1: [],
     box2: [],
     box3: [],
     box4: [
-      { id: 1, src: '/Tragwerkelemente/04.png' },
-      { id: 2, src: '/Tragwerkelemente/02.png' },
-      { id: 3, src: '/Tragwerkelemente/03.png' },
+      { id: 1, src: "/Tragwerkelemente/04.png" },
+      { id: 2, src: "/Tragwerkelemente/02.png" },
+      { id: 3, src: "/Tragwerkelemente/03.png" },
     ],
   });
 
   useEffect(() => {
+    fetch("http://localhost:3000/api/materials")
+      .then((response) => response.json())
+      .then((data) => setMaterials(data.data));
+  }, []);
+
+  useEffect(() => {
     fetch(`http://localhost:3000/get-exercise/${id}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'ok') {
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "ok") {
           setExercise(data.data);
         } else {
-          console.error('Failed to fetch exercise details');
+          console.error("Failed to fetch exercise details");
         }
       })
-      .catch(error => console.error('Error:', error));
+      .catch((error) => console.error("Error:", error));
   }, [id]);
 
   const handleDrop = (item, boxId) => {
@@ -110,7 +125,9 @@ const ExerciseDetails = () => {
             <div className="details">
               <h3>{exercise.title}</h3>
               <p>{exercise.description}</p>
-              <a href="/teacher_profile" className="inline-btn">View Profile</a>
+              <a href="/teacher_profile" className="inline-btn">
+                View Profile
+              </a>
             </div>
           </div>
         </div>
@@ -157,7 +174,16 @@ const ExerciseDetails = () => {
       <section className="playlist-videos">
         <h1 className="heading">Unterstützendes Material</h1>
         <div className="box-container">
-          <a className="box" href="https://www.youtube.com/watch?v=c3zw5Nk8jr8">
+          {materials.map((material) => {
+            return (
+              <a className="box" href={material.link}>
+                <i className="fas fa-play"></i>
+                <img src="images/post-1-1.png" alt="" />
+                <h3>{material.title}</h3>
+              </a>
+            );
+          })}
+          {/* <a className="box" href="https://www.youtube.com/watch?v=c3zw5Nk8jr8">
             <i className="fas fa-play"></i>
             <img src="images/post-1-1.png" alt="" />
             <h3>complete HTML tutorial (part 01)</h3>
@@ -167,7 +193,7 @@ const ExerciseDetails = () => {
             <i className="fas fa-play"></i>
             <img src="images/post-1-2.png" alt="" />
             <h3>complete HTML tutorial (part 02)</h3>
-          </a>
+          </a> */}
         </div>
       </section>
     </DndProvider>

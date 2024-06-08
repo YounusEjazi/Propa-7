@@ -18,10 +18,8 @@
   transform: translateX(0);
 }
 
-
-
 .sidebar .profile {
-  padding: 10rem 5rem;
+  margin-top: 10rem;
   text-align: center;
 }
 
