@@ -1,15 +1,31 @@
-import { Button, Card, Input, Space } from "antd";
+import { Button, Card, Input, Space, Select } from "antd";
 import { useState, useEffect } from "react";
+import { ArrowUpOutlined } from "@ant-design/icons";
 
 const FeedbackPage = () => {
-  const [commentText, setCommentText] = useState();
-  const [feedbackText, setFeedbackText] = useState();
-
-  const [allFeedback, setAllFeedback] = useState();
-
+  const [commentText, setCommentText] = useState({});
+  const [feedbackText, setFeedbackText] = useState("");
+  const [allFeedback, setAllFeedback] = useState([]);
   const [user, setUser] = useState(
     JSON.parse(window.localStorage.getItem("user"))
   );
+  const [users, setUsers] = useState([]);
+  const [feedbackUser, setFeedbackUser] = useState(null);
+
+  useEffect(() => {
+    if (user.userType === "Admin") {
+      fetch(`http://localhost:3000/getAllUser`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setUsers(data.data);
+        });
+    }
+  }, []);
 
   const getAllFeedback = async () => {
     await fetch(`http://localhost:3000/get-feedback`, {
@@ -24,7 +40,7 @@ const FeedbackPage = () => {
         if (data.status === "ok") {
           setAllFeedback(data.data);
         } else {
-          console.error("Failed to fetch exercise details");
+          console.error("Failed to fetch feedback details");
         }
       })
       .catch((error) => console.error("Error:", error));
@@ -42,6 +58,7 @@ const FeedbackPage = () => {
         Authorization: `Bearer ${window.localStorage.getItem("token")}`,
       },
       body: JSON.stringify({
+        feedbackUserId: feedbackUser._id,
         firstName: user.fname,
         lastName: user.lname,
         feedback: feedbackText,
@@ -49,19 +66,42 @@ const FeedbackPage = () => {
     });
 
     await getAllFeedback();
-
-    setFeedbackText(null);
+    setFeedbackText("");
   };
 
   useEffect(() => {
     getAllFeedback();
   }, []);
 
-  const handleCommentChange = (event) => {
-    setCommentText(event.target.value);
+  const handleCommentChange = (feedbackId, event) => {
+    setCommentText({
+      ...commentText,
+      [feedbackId]: event.target.value,
+    });
   };
 
-  const addComment = () => {};
+  const addComment = async (feedbackId) => {
+    await fetch(`http://localhost:3000/add-comment/${feedbackId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        firstName: user.fname,
+        lastName: user.lname,
+        comment: commentText[feedbackId],
+        feedbackId: feedbackId,
+      }),
+    });
+
+    await getAllFeedback();
+    setCommentText({ ...commentText, [feedbackId]: "" });
+  };
+
+  const selectFeedbackUser = (event) => {
+    setFeedbackUser(users.find((user) => user._id === event));
+  };
 
   return (
     <Space
@@ -71,6 +111,22 @@ const FeedbackPage = () => {
     >
       {user.userType === "Admin" ? (
         <div>
+          <Select
+            showSearch
+            placeholder="Select a person"
+            optionFilterProp="children"
+            onChange={(event) => selectFeedbackUser(event)}
+            onSearch={() => {}}
+            // filterOption={filterOption}
+            options={users.map((user) => {
+              return {
+                value: user._id,
+                label: `${user.fname} ${user.lname}`,
+              };
+            })}
+            style={{ width: "100%", marginBottom: "1rem" }}
+          />
+
           <Input.TextArea
             size="large"
             placeholder="Write New Feedback"
@@ -80,56 +136,86 @@ const FeedbackPage = () => {
             onChange={handleFeedbackChange}
           />
 
-          <Button type="primary" onClick={addFeedback} block>
+          <Button
+            iconPosition="end"
+            type="primary"
+            onClick={addFeedback}
+            block
+            disabled={!feedbackUser || !feedbackText}
+          >
             Add Feedback
           </Button>
         </div>
       ) : null}
 
       {allFeedback &&
-        allFeedback.map((feedback) => {
-          return (
-            <Card
-              title={`${feedback.firstName} ${feedback.lastName}`}
-              bordered={false}
-              style={{ width: "100%" }}
-            >
-              <h4>{feedback.feedback}</h4>
-              {feedback.comments.map((comment) => {
-                return (
-                  <div
-                    style={{
-                      backgroundColor: "rgb(224, 233, 236, 0.7)",
-                      opacity: 0.7,
-                      marginBottom: "1rem",
-                      borderRadius: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      padding: "0 1.2rem 0 1.2rem",
-                    }}
-                  >
-                    <span
-                      style={{ fontSize: "14px", float: "left" }}
-                    >{`${comment.firstName} ${comment.lastName}`}</span>
-                    <span style={{ fontSize: "10px" }}>{comment.comment}</span>
-                  </div>
-                );
-              })}
-              <Input.TextArea
-                size="large"
-                placeholder="Write Comment"
-                allowClear
-                style={{ marginBottom: "1rem" }}
-                onChange={handleCommentChange}
-              />
+        allFeedback
+          .filter((feedback) => {
+            if (user.userType === "Admin") {
+              return feedback;
+            } else {
+              if (
+                feedback.feedbackUserId &&
+                user.id.toString() === feedback.feedbackUserId.toString()
+              ) {
+                return feedback;
+              }
+              return undefined;
+            }
+          })
+          .map((feedback) => {
+            return (
+              <Card
+                key={feedback._id}
+                title={`${feedback.firstName} ${feedback.lastName}`}
+                bordered={false}
+                style={{ width: "100%" }}
+              >
+                <h4>{feedback.feedback}</h4>
+                {feedback.comments.map((comment) => {
+                  return (
+                    <div
+                      key={comment._id}
+                      style={{
+                        backgroundColor: "rgb(224, 233, 236, 0.7)",
+                        opacity: 0.7,
+                        marginBottom: "1rem",
+                        borderRadius: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        padding: "0 1.2rem 0 1.2rem",
+                      }}
+                    >
+                      <span
+                        style={{ fontSize: "14px", float: "left" }}
+                      >{`${comment.firstName} ${comment.lastName}`}</span>
+                      <span style={{ fontSize: "10px" }}>
+                        {comment.comment}
+                      </span>
+                    </div>
+                  );
+                })}
+                <Input.TextArea
+                  size="large"
+                  placeholder="Write Comment"
+                  allowClear
+                  style={{ marginBottom: "1rem" }}
+                  value={commentText[feedback._id] || ""}
+                  onChange={(event) => handleCommentChange(feedback._id, event)}
+                />
 
-              <Button type="primary" onClick={addComment} block>
-                Add Comment
-              </Button>
-            </Card>
-          );
-        })}
+                <Button
+                  type="primary"
+                  onClick={() => addComment(feedback._id)}
+                  block
+                  disabled={!commentText}
+                >
+                  Add Comment
+                </Button>
+              </Card>
+            );
+          })}
     </Space>
   );
 };

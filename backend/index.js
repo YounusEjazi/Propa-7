@@ -62,6 +62,7 @@ const Exercise = mongoose.model("Exercise", exerciseSchema);
 // Exercise Schema
 const feedbackSchema = new mongoose.Schema(
   {
+    feedbackUserId: mongoose.Types.ObjectId,
     firstName: String,
     lastName: String,
     feedback: String,
@@ -70,6 +71,7 @@ const feedbackSchema = new mongoose.Schema(
         firstName: String,
         lastName: String,
         comment: String,
+        createdAt: { type: Date, default: Date.now },
       },
     ],
   },
@@ -186,6 +188,7 @@ app.post("/login-user", async (req, res) => {
     );
 
     const userData = {
+      id: user._id,
       fname: user.fname,
       lname: user.lname,
       email: user.email,
@@ -335,11 +338,10 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-// Add feedback
 app.post("/add-feedback", verifyToken, async (req, res) => {
-  const { firstName, lastName, feedback } = req.body;
+  const { feedbackUserId, firstName, lastName, feedback } = req.body;
 
-  const newFeedback = new Feedback({ firstName, lastName, feedback });
+  const newFeedback = new Feedback({ feedbackUserId: new mongoose.Types.ObjectId(feedbackUserId), firstName, lastName, feedback });
 
   try {
     await newFeedback.save();
@@ -361,16 +363,16 @@ app.get("/get-feedback", verifyToken, async (req, res) => {
   }
 });
 
-// Get feedback by ID
-app.get("/get-feedback/:id", verifyToken, async (req, res) => {
+
+
+// Get comments for a feedback
+app.get("/get-comments", verifyToken, async (req, res) => {
   try {
     const feedback = await Feedback.findById(req.params.id);
     if (!feedback) {
-      return res
-        .status(404)
-        .json({ status: "error", message: "Feedback not found" });
+      return res.status(404).json({ status: "error", message: "Feedback not found" });
     }
-    res.status(200).json({ status: "ok", data: feedback });
+    res.status(200).json({ status: "ok", data: feedback.comments });
   } catch (err) {
     res.status(500).send(err);
   }
@@ -380,12 +382,15 @@ app.get("/get-feedback/:id", verifyToken, async (req, res) => {
 app.post("/add-comment/:id", verifyToken, async (req, res) => {
   const { firstName, lastName, comment } = req.body;
 
+  console.log("comment is ", comment);
+  console.log("id is ", req.params.id);
+
   try {
     const updatedFeedback = await Feedback.findOneAndUpdate(
-      { _id: req.param.id },
+      { _id: req.params.id },
       {
         $push: {
-          comment: {
+          comments: {
             firstName,
             lastName,
             comment,
@@ -398,12 +403,39 @@ app.post("/add-comment/:id", verifyToken, async (req, res) => {
     res.status(200).json({
       status: "ok",
       message: "Comment added successfully",
-      updatedFeedbacks,
+      updatedFeedback,
     });
   } catch (err) {
     res.status(500).send(err);
   }
 });
+
+// New Endpoint to Fetch All Comments
+app.get("/get-all-comments", verifyToken, async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find({}, { comments: 1, _id: 0 });
+    const allComments = feedbacks.reduce((acc, feedback) => {
+      acc = acc.concat(feedback.comments);
+      return acc;
+    }, []);
+    res.status(200).json({ status: "ok", data: allComments });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+//app.listen(PORT, () => {
+ // console.log(`Server is running on port ${PORT}`);
+//});
+
+// ... Existing code
+
+
+
+
+
+
+
 
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port ${PORT}`);
