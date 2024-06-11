@@ -1,6 +1,5 @@
 import { Button, Card, Input, Space, Select } from "antd";
 import { useState, useEffect } from "react";
-import { ArrowUpOutlined } from "@ant-design/icons";
 
 const FeedbackPage = () => {
   const [commentText, setCommentText] = useState({});
@@ -101,6 +100,30 @@ const FeedbackPage = () => {
 
   const selectFeedbackUser = (event) => {
     setFeedbackUser(users.find((user) => user._id === event));
+  };
+
+  const deleteFeedback = (id) => {
+    if (window.confirm("Are you sure you want to delete this feedback?")) {
+      fetch(`http://localhost:3000/delete-feedback`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ id }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "ok") {
+            setAllFeedback(
+              allFeedback.filter((feedback) => feedback._id !== id)
+            );
+          } else {
+            console.error("Failed to delete feedback");
+          }
+        })
+        .catch((error) => console.error("Error:", error));
+    }
   };
 
   return (
@@ -209,10 +232,21 @@ const FeedbackPage = () => {
                   type="primary"
                   onClick={() => addComment(feedback._id)}
                   block
-                  disabled={!commentText}
+                  disabled={!commentText[feedback._id]}
                 >
                   Add Comment
                 </Button>
+                {user.userType === "Admin" && (
+                  <Button
+                    type="primary"
+                    danger
+                    onClick={() => deleteFeedback(feedback._id)}
+                    block
+                    style={{ marginTop: "1rem" }}
+                  >
+                    Delete Feedback
+                  </Button>
+                )}
               </Card>
             );
           })}

@@ -363,6 +363,16 @@ app.get("/get-feedback", verifyToken, async (req, res) => {
   }
 });
 
+//Delete feedback
+app.post('/delete-feedback', async (req, res) => {
+  const { id } = req.body;
+  try {
+    await Feedback.findByIdAndDelete(id); // Assuming you are using Mongoose
+    res.json({ status: 'ok' });
+  } catch (error) {
+    res.json({ status: 'error', error: 'Failed to delete feedback' });
+  }
+});
 
 
 // Get comments for a feedback
