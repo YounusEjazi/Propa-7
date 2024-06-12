@@ -4,69 +4,89 @@
   top: 0;
   left: 0;
   height: 100%;
-  width: 60%;
-  max-width: 300px;
-  background-color: #202121;
+  width: 45%;
+  max-width: 250px;
+  background: linear-gradient(135deg, #202121, #0e0e0e);
   border-right: 1px solid #0009af;
   padding: 32px 16px;
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
-  z-index: 10;
+  z-index: 100;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
 }
 
 .sidebar.active {
   transform: translateX(0);
 }
 
-
+.sidebar #close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+}
 
 .sidebar .profile {
-  padding: 10rem 5rem;
+  padding: 8rem 0.5rem;
   text-align: center;
 }
 
 .sidebar .profile .image {
-  height: 10rem;
-  width: 10rem;
+  height: 150px;
+  width: 150px;
   border-radius: 50%;
-  object-fit: contain;
+  object-fit: cover;
   margin-bottom: 1rem;
+  border: 2px solid #0009af;
 }
 
 .sidebar .profile .name {
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: #fff;
+  margin-bottom: 0.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .sidebar .profile .role {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   color: #aaa;
+}
+
+.sidebar .sidebar-nav {
+  margin-top: 0rem;
 }
 
 .sidebar .sidebar-nav a {
-  display: table;
-  padding: 2.5rem 1.5rem 3rem;
-  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  font-size: 1.2rem;
+  color: #aaa;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s, padding-left 0.3s;
 }
 
 .sidebar .sidebar-nav a i {
-  margin-right: 1.5rem;
+  margin-right: 1rem;
   color: #c5f600;
-  transition: 0.2s linear;
+  transition: color 0.3s, margin-right 0.3s;
 }
 
 .sidebar .sidebar-nav a span {
-  color: #aaa;
+  flex-grow: 1;
 }
 
 .sidebar .sidebar-nav a:hover {
-  width: 100%;
   background-color: #333;
+  padding-left: 1.5rem;
 }
 
 .sidebar .sidebar-nav a:hover i {
-  margin-right: 2.5rem;
+  color: #fff;
+  margin-right: 1.5rem;
 }
