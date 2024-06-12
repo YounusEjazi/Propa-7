@@ -59,7 +59,7 @@ const exerciseSchema = new mongoose.Schema({
 
 const Exercise = mongoose.model("Exercise", exerciseSchema);
 
-// Exercise Schema
+// Feedback Schema
 const feedbackSchema = new mongoose.Schema(
   {
     feedbackUserId: mongoose.Types.ObjectId,
@@ -338,6 +338,8 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+
+//Feedback
 app.post("/add-feedback", verifyToken, async (req, res) => {
   const { feedbackUserId, firstName, lastName, feedback } = req.body;
 
