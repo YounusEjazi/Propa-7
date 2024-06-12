@@ -68,6 +68,31 @@ const materialSchema = new mongoose.Schema({
 
 const Material = mongoose.model("Material", materialSchema);
 
+
+// Feedback Schema
+const feedbackSchema = new mongoose.Schema(
+  {
+    feedbackUserId: mongoose.Types.ObjectId,
+    firstName: String,
+    lastName: String,
+    feedback: String,
+    comments: [
+      {
+        firstName: String,
+        lastName: String,
+        comment: String,
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Feedback = mongoose.model("Feedback", feedbackSchema);
+
+
 // Middleware for verifying token
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
@@ -309,12 +334,11 @@ app.delete('/delete-material', verifyToken, async (req, res) => {
     res.status(500).send(error);
   }
 });
-
-// Add feedback
+//Feedback
 app.post("/add-feedback", verifyToken, async (req, res) => {
-  const { firstName, lastName, feedback } = req.body;
+  const { feedbackUserId, firstName, lastName, feedback } = req.body;
 
-  const newFeedback = new Feedback({ firstName, lastName, feedback });
+  const newFeedback = new Feedback({ feedbackUserId: new mongoose.Types.ObjectId(feedbackUserId), firstName, lastName, feedback });
 
   try {
     await newFeedback.save();
@@ -322,7 +346,7 @@ app.post("/add-feedback", verifyToken, async (req, res) => {
       .status(200)
       .json({ status: "ok", message: "Feedback added successfully" });
   } catch (err) {
-    res.status (500).send(err);
+    res.status(500).send(err);
   }
 });
 
@@ -336,16 +360,26 @@ app.get("/get-feedback", verifyToken, async (req, res) => {
   }
 });
 
-// Get feedback by ID
-app.get("/get-feedback/:id", verifyToken, async (req, res) => {
+//Delete feedback
+app.post('/delete-feedback', async (req, res) => {
+  const { id } = req.body;
+  try {
+    await Feedback.findByIdAndDelete(id); // Assuming you are using Mongoose
+    res.json({ status: 'ok' });
+  } catch (error) {
+    res.json({ status: 'error', error: 'Failed to delete feedback' });
+  }
+});
+
+
+// Get comments for a feedback
+app.get("/get-comments", verifyToken, async (req, res) => {
   try {
     const feedback = await Feedback.findById(req.params.id);
     if (!feedback) {
-      return res
-        .status(404)
-        .json({ status: "error", message: "Feedback not found" });
+      return res.status(404).json({ status: "error", message: "Feedback not found" });
     }
-    res.status(200).json({ status: "ok", data: feedback });
+    res.status(200).json({ status: "ok", data: feedback.comments });
   } catch (err) {
     res.status(500).send(err);
   }
@@ -354,6 +388,9 @@ app.get("/get-feedback/:id", verifyToken, async (req, res) => {
 // Add comment to feedback
 app.post("/add-comment/:id", verifyToken, async (req, res) => {
   const { firstName, lastName, comment } = req.body;
+
+  console.log("comment is ", comment);
+  console.log("id is ", req.params.id);
 
   try {
     const updatedFeedback = await Feedback.findOneAndUpdate(
@@ -379,6 +416,22 @@ app.post("/add-comment/:id", verifyToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+// New Endpoint to Fetch All Comments
+app.get("/get-all-comments", verifyToken, async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find({}, { comments: 1, _id: 0 });
+    const allComments = feedbacks.reduce((acc, feedback) => {
+      acc = acc.concat(feedback.comments);
+      return acc;
+    }, []);
+    res.status(200).json({ status: "ok", data: allComments });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -41,14 +41,7 @@ function Dashboard() {
             <h2>Quiz</h2>
             <App />
           </section>
-          <section id="test">
-            <h2>Test</h2>
-            <p>Test content goes here...</p>
-          </section>
-          <section id="assignments">
-            <h2>Assignments</h2>
-            <p>Assignments content goes here...</p>
-          </section>
+          
         </div>
       ) : (
         <Login onLogin={setUser} />
