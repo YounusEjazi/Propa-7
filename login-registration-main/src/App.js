@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -11,8 +11,10 @@ import NotFound from './components/notfound';
 import NavBar from './components/navbar';
 import Sidebar from './components/sidebar';
 import ExerciseDetails from './components/exDetails';
-import AddExercise from './components/AddExercise'; // Import the new component
+import AddExercise from './components/AddExercise';
 import Exercises from './components/Exercises';
+import Materials from './components/Materials';
+import AdminHome from './components/adminHome';
 
 function ProtectedRoute({ element: Component, ...rest }) {
   const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
@@ -21,12 +23,41 @@ function ProtectedRoute({ element: Component, ...rest }) {
 
 function App() {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
-  const user = JSON.parse(window.localStorage.getItem('user'));
+  const [user, setUser] = useState(null);
 
   const handleNavToggle = () => {
     setIsNavOpen(!isNavOpen);
   };
+
+  useEffect(() => {
+    const token = window.localStorage.getItem('token');
+    if (token) {
+      fetch('http://localhost:3000/userData', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 'ok') {
+            setUser(data.data);
+            window.localStorage.setItem('user', JSON.stringify(data.data));
+          } else {
+            window.localStorage.clear();
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error);
+          window.localStorage.clear();
+        });
+    }
+  }, []);
+
+  const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
 
   return (
     <div className="App">
@@ -40,8 +71,10 @@ function App() {
           <Route path="/userDetails" element={<ProtectedRoute element={UserDetails} />} />
           <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
           <Route path="/exDetails/:id" element={<ProtectedRoute element={ExerciseDetails} />} />
-          <Route path="/addExercise" element={<ProtectedRoute element={AddExercise} />} /> {/* Add new route */}
+          <Route path="/addExercise" element={<ProtectedRoute element={AddExercise} />} />
           <Route path="/exercises" element={<ProtectedRoute element={Exercises} />} />
+          <Route path="/materials" element={<ProtectedRoute element={Materials} />} />
+          <Route path="/admin/users" element={<ProtectedRoute element={AdminHome} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

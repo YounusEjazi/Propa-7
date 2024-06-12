@@ -24,10 +24,10 @@ const AddExercise = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
-          alert("Exercise added successfully");
+          // alert("Exercise added successfully");
           setExercise({ id: "", title: "", description: "", img: "" });
         } else {
-          alert("Failed to add exercise");
+          // alert("Failed to add exercise");
         }
       });
   };

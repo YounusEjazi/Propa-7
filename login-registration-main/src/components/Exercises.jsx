@@ -27,13 +27,12 @@ const Exercises = () => {
 
   const deleteExercise = (id) => {
     if (window.confirm('Are you sure you want to delete this exercise?')) {
-      fetch(`http://localhost:3000/delete-exercise`, {
-        method: 'POST',
+      fetch(`http://localhost:3000/delete-exercise/${id}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ id }),
       })
         .then(response => response.json())
         .then(data => {
@@ -58,7 +57,7 @@ const Exercises = () => {
               <img src="images/pic-2.jpg" alt="" />
               <div className="info">
                 <h3>{exercise.title}</h3>
-                <span>{exercise.date}</span>
+                <span>{new Date(exercise.date).toLocaleDateString()}</span>
               </div>
             </div>
             <div className="thumb">

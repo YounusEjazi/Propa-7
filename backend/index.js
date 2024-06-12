@@ -52,9 +52,21 @@ const exerciseSchema = new mongoose.Schema({
   title: String,
   description: String,
   img: String,
+  date: { type: Date, default: Date.now },
+  createdBy: String // New field to store the creator's name
 });
 
 const Exercise = mongoose.model("Exercise", exerciseSchema);
+
+// Material Schema
+const materialSchema = new mongoose.Schema({
+  title: String,
+  link: String,
+  filePath: String, // New field for file path
+  exerciseId: { type: String, ref: 'Exercise' }, // Use string type to match `id` field in Exercise
+});
+
+const Material = mongoose.model("Material", materialSchema);
 
 // Middleware for verifying token
 const verifyToken = (req, res, next) => {
@@ -75,7 +87,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    cb(null, `${req.user.id}${path.extname(file.originalname)}`);
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 const upload = multer({ storage });
@@ -121,13 +133,12 @@ app.post("/login-user", async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    console.log("User", user);
     if (!user) return res.status(404).json({ status: "error", message: "User not found" });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ status: "error", message: "Invalid password" });
 
-    const token = jwt.sign({ id: user._id, email: user.email, userType: user.userType }, SECRET_KEY, {
+    const token = jwt.sign({ id: user._id, email: user.email, fname: user.fname, lname: user.lname, userType: user.userType }, SECRET_KEY, {
       expiresIn: "1h",
     });
 
@@ -158,15 +169,12 @@ app.get("/getAllUser", verifyToken, async (req, res) => {
 app.post("/deleteUser", verifyToken, async (req, res) => {
   const { userid } = req.body;
   try {
-    console.log(`Attempting to delete user with id: ${userid}`);
     const user = await User.findByIdAndDelete(userid);
     if (!user) {
-      console.log(`User not found with id: ${userid}`);
       return res.status(404).json({ status: "error", message: "User not found" });
     }
     res.status(200).json({ status: "ok", message: "User deleted successfully" });
   } catch (err) {
-    console.error("Error deleting user:", err);
     res.status(500).send(err);
   }
 });
@@ -207,8 +215,9 @@ app.post('/add-exercise', verifyToken, async (req, res) => {
 
   const { id, title, description, img } = req.body;
   const date = new Date().toISOString();
+  const createdBy = `${req.user.fname} ${req.user.lname}`; // Get admin's name
 
-  const newExercise = new Exercise({ id, title, description, img, date });
+  const newExercise = new Exercise({ id, title, description, img, date, createdBy });
 
   try {
     await newExercise.save();
@@ -217,7 +226,6 @@ app.post('/add-exercise', verifyToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
-
 
 app.get('/get-exercises', verifyToken, async (req, res) => {
   try {
@@ -240,18 +248,14 @@ app.get('/get-exercise/:id', verifyToken, async (req, res) => {
   }
 });
 
-
-//deleting Exercises
-
-app.post('/delete-exercise', verifyToken, async (req, res) => {
+// delete exercise
+app.delete('/delete-exercise/:id', verifyToken, async (req, res) => {
   if (req.user.userType !== 'Admin') {
     return res.status(403).json({ status: 'error', message: 'Access denied' });
   }
 
-  const { id } = req.body;
-
   try {
-    const exercise = await Exercise.findOneAndDelete({ id });
+    const exercise = await Exercise.findOneAndDelete({ id: req.params.id });
     if (!exercise) {
       return res.status(404).json({ status: 'error', message: 'Exercise not found' });
     }
@@ -261,8 +265,122 @@ app.post('/delete-exercise', verifyToken, async (req, res) => {
   }
 });
 
+// Add supportive material (Admin only)
+app.post('/add-materials', verifyToken, upload.single('file'), async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
 
+  const { title, link, exerciseId } = req.body;
+  const filePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+  // Validate that the exerciseId exists in the Exercise collection
+  const exercise = await Exercise.findOne({ id: exerciseId });
+  if (!exercise) {
+    return res.status(400).json({ status: 'error', message: 'Invalid exercise ID' });
+  }
+
+  const newMaterial = new Material({ title, link, filePath, exerciseId });
+
+  try {
+    await newMaterial.save();
+    res.status(201).json({ status: 'ok', message: 'Material added successfully', data: newMaterial });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get materials by exercise ID
+app.get('/get-materials/:exerciseId', verifyToken, async (req, res) => {
+  try {
+    const materials = await Material.find({ exerciseId: req.params.exerciseId });
+    res.status(200).json({ status: 'ok', data: materials });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Delete supportive material
+app.delete('/delete-material', verifyToken, async (req, res) => {
+  try {
+    await Material.deleteOne({ _id: req.body.id });
+    res.status(200).json({ status: 'ok', data: true });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// Add feedback
+app.post("/add-feedback", verifyToken, async (req, res) => {
+  const { firstName, lastName, feedback } = req.body;
+
+  const newFeedback = new Feedback({ firstName, lastName, feedback });
+
+  try {
+    await newFeedback.save();
+    res
+      .status(200)
+      .json({ status: "ok", message: "Feedback added successfully" });
+  } catch (err) {
+    res.status (500).send(err);
+  }
+});
+
+// Get all feedback
+app.get("/get-feedback", verifyToken, async (req, res) => {
+  try {
+    const allFeedback = await Feedback.find().sort({ createdAt: -1 });
+    res.status(200).json({ status: "ok", data: allFeedback });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get feedback by ID
+app.get("/get-feedback/:id", verifyToken, async (req, res) => {
+  try {
+    const feedback = await Feedback.findById(req.params.id);
+    if (!feedback) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Feedback not found" });
+    }
+    res.status(200).json({ status: "ok", data: feedback });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Add comment to feedback
+app.post("/add-comment/:id", verifyToken, async (req, res) => {
+  const { firstName, lastName, comment } = req.body;
+
+  try {
+    const updatedFeedback = await Feedback.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $push: {
+          comments: {
+            firstName,
+            lastName,
+            comment,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      status: "ok",
+      message: "Comment added successfully",
+      updatedFeedback,
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+

@@ -44,15 +44,15 @@ export default function AdminHome() {
         .then((res) => res.json())
         .then((data) => {
           if (data.status === "ok") {
-            alert(data.message);
+            // alert(data.message);
             getAllUser(); // Refresh the list after deletion
           } else {
-            alert(data.message);
+            // alert(data.message);
           }
         })
         .catch((error) => {
           console.error("Error deleting user:", error);
-          alert("An error occurred while deleting the user.");
+          // alert("An error occurred while deleting the user.");
         });
     }
   };

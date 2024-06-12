@@ -12,7 +12,7 @@ export default function SignUp() {
     e.preventDefault();
 
     if (userType === "Admin" && secretKey !== "Tragkonstruktion") {
-      alert("Invalid Admin Secret Key");
+      // alert("Invalid Admin Secret Key");
       return;
     }
 
@@ -34,10 +34,10 @@ export default function SignUp() {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
-          alert("Registration Successful");
+          // alert("Registration Successful");
           window.location.href = "./sign-in";
         } else {
-          alert(data.message || "Something went wrong");
+          // alert(data.message || "Something went wrong");
         }
       })
       .catch((error) => {

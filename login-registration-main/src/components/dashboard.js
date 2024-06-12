@@ -32,7 +32,8 @@ function Dashboard() {
                 <p className="likes">Total Mistakes: <span>12</span></p>
                 <a href="#" className="inline-btn">View Mistakes</a>
                 <p className="likes">Total Comments: <span>4</span></p>
-                <a href="#" className="inline-btn">View Comments</a>
+                {/* <a href="#" className="inline-btn">View Comments</a> */}
+                <Link to={`/feedback`} className="inline-btn">View Feedback</Link>
               </div>
             </div>
           </section>
