@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import './navbar.css';
+import logo from '../assets/logo.png';
 
 function NavBar({ handleNavToggle, isNavOpen }) {
   const isLoggedIn = window.localStorage.getItem("loggedIn") === "true";
@@ -17,6 +18,9 @@ function NavBar({ handleNavToggle, isNavOpen }) {
     <div className='navbar'>
       <div className='navbar-toggle' onClick={handleNavToggle}>
         {isNavOpen ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
+      </div>
+      <div className="navbar-logo">
+        <img src={logo} alt="Logo" className="logo" />
       </div>
       <div className='navbar-links'>
         <ul>
