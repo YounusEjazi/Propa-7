@@ -56,6 +56,7 @@ const DroppableBox = ({ id, children, onDrop }) => {
 };
 
 const ExerciseDetails = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
   const { id } = useParams();
   const [exercise, setExercise] = useState();
   const [boxes, setBoxes] = useState({
@@ -154,7 +155,7 @@ const ExerciseDetails = () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
+     },
       body: JSON.stringify({ id: material._id })
     })
       .then(response => response.json())
@@ -249,7 +250,7 @@ const ExerciseDetails = () => {
                 )}
                 <h3>{material.title}</h3>
               </div>
-              <button className="delete-button" onClick={() => deleteMaterial(material)}>Delete</button>
+              {user.userType === "Admin" && <button className="delete-button" onClick={() => deleteMaterial(material)}>Delete</button>}
             </div>
           ))}
         </div>

@@ -316,6 +316,16 @@ app.post('/add-materials', verifyToken, upload.single('file'), async (req, res) 
 });
 
 // Get materials by exercise ID
+app.get('/get-materials', verifyToken, async (req, res) => {
+  try {
+    const materials = await Material.find();
+    res.status(200).json({ status: 'ok', data: materials });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get materials by exercise ID
 app.get('/get-materials/:exerciseId', verifyToken, async (req, res) => {
   try {
     const materials = await Material.find({ exerciseId: req.params.exerciseId });
@@ -327,6 +337,7 @@ app.get('/get-materials/:exerciseId', verifyToken, async (req, res) => {
 
 // Delete supportive material
 app.delete('/delete-material', verifyToken, async (req, res) => {
+  
   try {
     await Material.deleteOne({ _id: req.body.id });
     res.status(200).json({ status: 'ok', data: true });
