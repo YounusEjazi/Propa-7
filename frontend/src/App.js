@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -15,7 +16,8 @@ import AddExercise from './components/AddExercise';
 import Exercises from './components/Exercises';
 import Materials from './components/Materials';
 import AdminHome from './components/adminHome';
-import FeedbackPage from './components/feedbackPage'; // Import the new feedback component
+import FeedbackPage from './components/feedbackPage';
+import Help from './components/Help'; // Import the new Help component
 
 function ProtectedRoute({ element: Component, ...rest }) {
   const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
@@ -76,7 +78,8 @@ function App() {
           <Route path="/exercises" element={<ProtectedRoute element={Exercises} />} />
           <Route path="/materials" element={<ProtectedRoute element={Materials} />} />
           <Route path="/admin/users" element={<ProtectedRoute element={AdminHome} />} />
-          <Route path="/feedback" element={<ProtectedRoute element={FeedbackPage} />} /> {/* Add new route */}
+          <Route path="/feedback" element={<ProtectedRoute element={FeedbackPage} />} />
+          <Route path="/help-page" element={<ProtectedRoute element={Help} />} /> {/* Add the Help route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

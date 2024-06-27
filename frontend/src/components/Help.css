@@ -1,0 +1,15 @@
+.help-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .image-section {
+    margin-bottom: 20px; /* Adjust the value to set the desired gap */
+  }
+  
+  .help-image {
+    max-width: 100%; /* Adjust as needed */
+    height: auto; /* Adjust as needed */
+  }
+  

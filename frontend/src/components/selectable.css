@@ -1,0 +1,11 @@
+/* src/components/selectable.css */
+.selectable-section {
+  position: relative;
+}
+
+.selection-box {
+  border: 1px dashed #000;
+  background-color: rgba(0, 0, 255, 0.3);
+  z-index: 1000;
+  position: absolute;
+}

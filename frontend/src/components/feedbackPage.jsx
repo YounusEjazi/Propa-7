@@ -179,7 +179,7 @@ const FeedbackPage = () => {
             } else {
               if (
                 feedback.feedbackUserId &&
-                user.id.toString() === feedback.feedbackUserId.toString()
+                user._id.toString() === feedback.feedbackUserId.toString()
               ) {
                 return feedback;
               }

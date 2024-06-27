@@ -47,6 +47,11 @@ const Exercises = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return isNaN(date) ? 'Invalid Date' : date.toLocaleDateString();
+  };
+
   return (
     <section className="courses">
       <h1 className="heading">Our Exercises</h1>
@@ -54,10 +59,10 @@ const Exercises = () => {
         {exercises.map(exercise => (
           <div className="box" key={exercise.id}>
             <div className="tutor">
-              <img src="images/pic-2.jpg" alt="" />
+              <img src={exercise.creatorImg ? `http://localhost:3000${exercise.creatorImg}` : '/user.png'} alt="Creator" className="creator-img" />
               <div className="info">
                 <h3>{exercise.title}</h3>
-                <span>{new Date(exercise.date).toLocaleDateString()}</span>
+                <span>{formatDate(exercise.date)}</span>
               </div>
             </div>
             <div className="thumb">

@@ -52,8 +52,9 @@ const exerciseSchema = new mongoose.Schema({
   title: String,
   description: String,
   img: String,
+  details: String, // New field for additional details
   date: { type: Date, default: Date.now },
-  createdBy: String // New field to store the creator's name
+  createdBy: String
 });
 
 const Exercise = mongoose.model("Exercise", exerciseSchema);
@@ -67,7 +68,6 @@ const materialSchema = new mongoose.Schema({
 });
 
 const Material = mongoose.model("Material", materialSchema);
-
 
 // Feedback Schema
 const feedbackSchema = new mongoose.Schema(
@@ -92,6 +92,18 @@ const feedbackSchema = new mongoose.Schema(
 
 const Feedback = mongoose.model("Feedback", feedbackSchema);
 
+// PredefinedArea Schema
+const predefinedAreaSchema = new mongoose.Schema({
+  exerciseId: { type: String, ref: 'Exercise' },
+  elementId: Number,
+  startX: Number,
+  startY: Number,
+  endX: Number,
+  endY: Number,
+  isCorrect: Boolean, // New field to store the correctness
+});
+
+const PredefinedArea = mongoose.model("PredefinedArea", predefinedAreaSchema);
 
 // Middleware for verifying token
 const verifyToken = (req, res, next) => {
@@ -261,6 +273,7 @@ app.get('/get-exercises', verifyToken, async (req, res) => {
   }
 });
 
+// Existing endpoint to fetch a single exercise
 app.get('/get-exercise/:id', verifyToken, async (req, res) => {
   try {
     const exercise = await Exercise.findOne({ id: req.params.id });
@@ -272,6 +285,7 @@ app.get('/get-exercise/:id', verifyToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
+
 
 // delete exercise
 app.delete('/delete-exercise/:id', verifyToken, async (req, res) => {
@@ -289,6 +303,29 @@ app.delete('/delete-exercise/:id', verifyToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+
+// Endpoint to update exercise details
+app.post('/update-exercise/:id', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  try {
+    const exercise = await Exercise.findOne({ id: req.params.id });
+    if (!exercise) {
+      return res.status(404).json({ status: 'error', message: 'Exercise not found' });
+    }
+
+    exercise.details = req.body.details;
+    await exercise.save();
+    
+    res.status(200).json({ status: 'ok', message: 'Exercise details updated successfully' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
 
 // Add supportive material (Admin only)
 app.post('/add-materials', verifyToken, upload.single('file'), async (req, res) => {
@@ -316,6 +353,16 @@ app.post('/add-materials', verifyToken, upload.single('file'), async (req, res) 
 });
 
 // Get materials by exercise ID
+app.get('/get-materials', verifyToken, async (req, res) => {
+  try {
+    const materials = await Material.find();
+    res.status(200).json({ status: 'ok', data: materials });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get materials by exercise ID
 app.get('/get-materials/:exerciseId', verifyToken, async (req, res) => {
   try {
     const materials = await Material.find({ exerciseId: req.params.exerciseId });
@@ -334,6 +381,7 @@ app.delete('/delete-material', verifyToken, async (req, res) => {
     res.status(500).send(error);
   }
 });
+
 //Feedback
 app.post("/add-feedback", verifyToken, async (req, res) => {
   const { feedbackUserId, firstName, lastName, feedback } = req.body;
@@ -371,17 +419,16 @@ app.post('/delete-feedback', async (req, res) => {
   }
 });
 
-
 // Get comments for a feedback
-app.get("/get-comments", verifyToken, async (req, res) => {
+app.get("/get-comments/:id", verifyToken, async (req, res) => {
   try {
     const feedback = await Feedback.findById(req.params.id);
     if (!feedback) {
       return res.status(404).json({ status: "error", message: "Feedback not found" });
     }
     res.status(200).json({ status: "ok", data: feedback.comments });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (error) {
+    res.status(500).send(error);
   }
 });
 
@@ -431,9 +478,34 @@ app.get("/get-all-comments", verifyToken, async (req, res) => {
   }
 });
 
+// Add predefined area
+app.post('/add-predefined-area', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
 
+  const { exerciseId, elementId, startX, startY, endX, endY } = req.body;
+
+  const newArea = new PredefinedArea({ exerciseId, elementId, startX, startY, endX, endY, isCorrect: false });
+
+  try {
+    await newArea.save();
+    res.status(200).json({ status: 'ok', message: 'Predefined area added successfully' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get predefined areas for an exercise
+app.get('/get-predefined-areas/:exerciseId', verifyToken, async (req, res) => {
+  try {
+    const areas = await PredefinedArea.find({ exerciseId: req.params.exerciseId });
+    res.status(200).json({ status: 'ok', data: areas });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-

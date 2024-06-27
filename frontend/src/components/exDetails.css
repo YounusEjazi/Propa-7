@@ -13,7 +13,7 @@
   height: 100px;
   margin: 5px;
   border-radius: 10px;
-  background-color: #f0f0f0;
+  background-color: #f0f0f0c5;
   transition: background-color 0.3s ease; /* Smooth transition effect */
 }
 
@@ -28,17 +28,14 @@
   align-items: center;
   width: 100%;
   height: auto; /* Adjust this to make it responsive */
-  border: 2px #ccc;
+  border: 2px solid #ccccccb2;
+  background-color: white;
   border-radius: .5rem;
   padding: 10px;
   transition: background-color 0.3s ease; /* Smooth transition effect */
 }
 
-.droppable-box:hover {
-  background-color: #f0f0f0; /* Light gray background on hover */
-  border-color: #aaa; /* Darker border color on hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-}
+/* Removed hover effect from droppable-box */
 
 .ex-elements .box-container1 {
   display: grid;
@@ -49,8 +46,6 @@
   justify-content: center;
   align-items: flex-start;
 }
-
-
 
 .ex-elements .box-container1 .b {
   background-color: var(--light-bg);
@@ -99,11 +94,11 @@
 }
 
 .playlist-details .row .column .save-playlist button:hover i {
-  color: var(--white);
+  color: var (--white);
 }
 
 .playlist-details .row .column .save-playlist button:hover span {
-  color: var(--white);
+  color: var (--white);
 }
 
 .playlist-details .row .column .thumb {
@@ -155,7 +150,7 @@
 
 .playlist-details .row .column .details h3 {
   font-size: 2rem;
-  color: var (--black);
+  color: var(--black);
   text-transform: capitalize;
 }
 
@@ -225,7 +220,7 @@
 .ex-videos .box-containerp .box .delete-button {
   margin-top: 1rem;
   background-color: var(--red);
-  color: var (--white);
+  color: var(--white);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -234,6 +229,31 @@
 
 .ex-videos .box-containerp .box .delete-button:hover {
   background-color: darkred;
+}
+
+.tip-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  font-size: 2rem;
+}
+
+.tip-button {
+  margin-top: 10px;
+  border-radius: .5rem;
+  background-color: var(--light-bg);
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  border: none;
+}
+
+.tip-button:hover {
+  background-color: var(--black);
+  color: var(--white);
 }
 
 @media (max-width: 991px) {
@@ -280,4 +300,20 @@
   .about .row .image img {
     height: 25rem;
   }
+}
+
+.correct {
+  border-color: green !important;
+  transition: border-color 1s;
+}
+
+.incorrect {
+  border-color: red !important;
+  transition: border-color 1s;
+}
+
+.editing-textarea {
+  border-color: #1890ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+  transition: border-color 0.3s, box-shadow 0.3s !important;
 }
