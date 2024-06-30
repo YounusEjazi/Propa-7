@@ -1,4 +1,4 @@
-import { Button, Card, Input, Space, Select } from "antd";
+import { Button, Card, Input, Space, Select, Modal } from "antd";
 import { useState, useEffect } from "react";
 
 const FeedbackPage = () => {
@@ -10,6 +10,8 @@ const FeedbackPage = () => {
   );
   const [users, setUsers] = useState([]);
   const [feedbackUser, setFeedbackUser] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     if (user.userType === "Admin") {
@@ -102,28 +104,38 @@ const FeedbackPage = () => {
     setFeedbackUser(users.find((user) => user._id === event));
   };
 
+  const showDeleteModal = (id) => {
+    setDeleteId(id);
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    deleteFeedback(deleteId);
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   const deleteFeedback = (id) => {
-    if (window.confirm("Are you sure you want to delete this feedback?")) {
-      fetch(`http://localhost:3000/delete-feedback`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ id }),
+    fetch(`http://localhost:3000/delete-feedback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ id }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "ok") {
+          setAllFeedback(allFeedback.filter((feedback) => feedback._id !== id));
+        } else {
+          console.error("Failed to delete feedback");
+        }
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "ok") {
-            setAllFeedback(
-              allFeedback.filter((feedback) => feedback._id !== id)
-            );
-          } else {
-            console.error("Failed to delete feedback");
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-    }
+      .catch((error) => console.error("Error:", error));
   };
 
   return (
@@ -140,7 +152,6 @@ const FeedbackPage = () => {
             optionFilterProp="children"
             onChange={(event) => selectFeedbackUser(event)}
             onSearch={() => {}}
-            // filterOption={filterOption}
             options={users.map((user) => {
               return {
                 value: user._id,
@@ -240,7 +251,7 @@ const FeedbackPage = () => {
                   <Button
                     type="primary"
                     danger
-                    onClick={() => deleteFeedback(feedback._id)}
+                    onClick={() => showDeleteModal(feedback._id)}
                     block
                     style={{ marginTop: "1rem" }}
                   >
@@ -250,6 +261,18 @@ const FeedbackPage = () => {
               </Card>
             );
           })}
+
+      <Modal
+        title="Delete Feedback"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Delete"
+        okButtonProps={{ danger: true }}
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to delete this feedback?</p>
+      </Modal>
     </Space>
   );
 };
