@@ -18,6 +18,7 @@ import Exercises from './components/Exercises';
 import Materials from './components/Materials';
 import AdminHome from './components/adminHome';
 import FeedbackPage from './components/feedbackPage';
+import SetDeadline from './components/setDeadline'; // Adjust the path as per your file structure
 import Help from './components/Help'; // Import the new Help component
 
 function ProtectedRoute({ element: Component, ...rest }) {
@@ -80,6 +81,7 @@ function App() {
           <Route path="/materials" element={<ProtectedRoute element={Materials} />} />
           <Route path="/admin/users" element={<ProtectedRoute element={AdminHome} />} />
           <Route path="/feedback" element={<ProtectedRoute element={FeedbackPage} />} />
+          <Route path="/exercise/:id/deadline" element={<ProtectedRoute element={SetDeadline} />} />
           <Route path="/help-page" element={<ProtectedRoute element={Help} />} /> {/* Add the Help route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
