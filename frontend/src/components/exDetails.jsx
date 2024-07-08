@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, componentDidMount } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./exDetails.css";
 import { Button, Card, Input, Space, Select, Modal } from "antd"; // Import Modal from Ant Design
@@ -12,6 +12,7 @@ const ExerciseDetails = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const { id } = useParams();
   const navigate = useNavigate();
+  const [hasExpired, setHasExpired] = useState(true);
   const [exercise, setExercise] = useState();
   const [deadline, setDeadline] = useState();
   const [exerciseDetails, setExerciseDetails] = useState("");
@@ -154,6 +155,11 @@ const ExerciseDetails = () => {
           const dateString = data.data[data.data.length - 1].deadline;
           const date = new Date(dateString);
 
+          console.log("Here is the date: ", new Date(dateString));
+
+          console.log("Has expired ", new Date(dateString) < new Date());
+          setHasExpired(new Date(dateString) < new Date());
+
           const formattedDate = date.toLocaleDateString("de-DE", {
             day: "2-digit",
             month: "2-digit",
@@ -165,7 +171,7 @@ const ExerciseDetails = () => {
         }
       })
       .catch((error) => console.error("Error:", error));
-  }, [id]);
+  }, []);
 
   const handleElementClick = (item) => {
     if (!selectedSection) {
@@ -338,6 +344,7 @@ const ExerciseDetails = () => {
       <section className="playlist-details">
         <h1 className="heading">Exercise Information</h1>
         {deadline && <h4>Deadline {deadline}</h4>}
+        {hasExpired.toString()}
         <div className="row">
           <div className="column">
             <div style={{ position: "relative" }}>

@@ -93,6 +93,7 @@ const SetDeadline = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
+        paddingBottom: "30rem",
       }}
     >
       <div
