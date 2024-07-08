@@ -27,18 +27,19 @@ function Dashboard() {
             <div className="boxContainer">
               <div className="box1">
                 <h3 className="title">Completed Exercises</h3>
-                <p className="likes">Total: <span>25</span></p>
-                <Link to={`/Exercises`} className="inline-btn">View Exercise</Link>
-                <p className="likes">Total Mistakes: <span>12</span></p>
-                <a href="#" className="inline-btn">View Mistakes</a>
-                <p className="likes">Total Comments: <span>4</span></p>
+                
+                <p className="likes"><span> </span></p>
+                <a href="#" className="inline-btn">View Progress</a>
+                <p className="likes">Total Mistakes: <span> </span></p>
                 {/* <a href="#" className="inline-btn">View Comments</a> */}
                 <Link to={`/feedback`} className="inline-btn">View Feedback</Link>
+                <p className="likes">Total Comments: <span>2</span></p>
+                <Link to={`/Exercises`} className="inline-btn">View Exercise</Link>
               </div>
             </div>
           </section>
           <section id="quiz">
-            <h2>Quiz</h2>
+            <h2>Practice Your Lessons Now</h2>
             <App />
           </section>
           
