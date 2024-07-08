@@ -87,29 +87,46 @@ const SetDeadline = () => {
   };
 
   return (
-    <div style={{ width: "300px" }}>
-      <h2>Set Deadline for Exercise</h2>
-      <Select
-        placeholder="Select an exercise"
-        onChange={handleExerciseChange}
-        style={{ marginBottom: "1rem", width: "100%" }}
-        value={selectedExercise}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          width: "500px",
+          backgroundColor: "white",
+          padding: "40px",
+          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+          borderRadius: "8px",
+        }}
       >
-        {exercises.map((exercise) => (
-          <Option key={exercise.id} value={exercise.id}>
-            {exercise.title}
-          </Option>
-        ))}
-      </Select>
-      <DatePicker
-        placeholder="Select deadline"
-        onChange={handleDateChange}
-        style={{ marginBottom: "1rem", width: "100%" }}
-        format={"YYYY-MM-DD"}
-      />
-      <Button type="primary" onClick={handleSubmit} style={{ width: "100%" }}>
-        Set Deadline
-      </Button>
+        <h2>Set Deadline for Exercise</h2>
+        <Select
+          placeholder="Select an exercise"
+          onChange={handleExerciseChange}
+          style={{ marginBottom: "1rem", width: "100%" }}
+          value={selectedExercise}
+        >
+          {exercises.map((exercise) => (
+            <Option key={exercise.id} value={exercise.id}>
+              {exercise.title}
+            </Option>
+          ))}
+        </Select>
+        <DatePicker
+          placeholder="Select deadline"
+          onChange={handleDateChange}
+          style={{ marginBottom: "1rem", width: "100%" }}
+          format={"YYYY-MM-DD"}
+        />
+        <Button type="primary" onClick={handleSubmit} style={{ width: "100%" }}>
+          Set Deadline
+        </Button>
+      </div>
     </div>
   );
 };
