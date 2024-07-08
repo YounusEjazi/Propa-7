@@ -15,7 +15,7 @@ const SetDeadline = () => {
   }, []);
 
   const fetchExercises = () => {
-    fetch("http://localhost:3000/exercises", {
+    fetch("http://localhost:3000/get-exercises", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -25,6 +25,7 @@ const SetDeadline = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === "ok") {
+          console.log(data.data);
           setExercises(data.data);
         } else {
           console.error("Failed to fetch exercises");
@@ -38,7 +39,16 @@ const SetDeadline = () => {
   };
 
   const handleDateChange = (date) => {
-    setDeadline(date);
+    const formattedDateString = `${date.$D}.${date.$M + 1}.${date.$y}`;
+
+    const parts = formattedDateString.split("."); // Split by dot
+    const formattedDate = new Date(
+      Number(parts[2]),
+      Number(parts[1]) - 1,
+      Number(parts[0])
+    );
+
+    setDeadline(formattedDate);
   };
 
   const handleSubmit = () => {
@@ -51,15 +61,18 @@ const SetDeadline = () => {
       return;
     }
 
-    const formattedDeadline = moment(deadline).format("YYYY-MM-DD");
+    // const formattedDeadline = moment(deadline).format("YYYY-MM-DD");
 
-    fetch(`http://localhost:3000/set-deadline/${selectedExercise}`, {
+    fetch(`http://localhost:3000/add-deadline`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ deadline: formattedDeadline }),
+      body: JSON.stringify({
+        exerciseId: selectedExercise,
+        date: deadline,
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -83,7 +96,7 @@ const SetDeadline = () => {
         value={selectedExercise}
       >
         {exercises.map((exercise) => (
-          <Option key={exercise._id} value={exercise._id}>
+          <Option key={exercise.id} value={exercise.id}>
             {exercise.title}
           </Option>
         ))}
@@ -92,6 +105,7 @@ const SetDeadline = () => {
         placeholder="Select deadline"
         onChange={handleDateChange}
         style={{ marginBottom: "1rem", width: "100%" }}
+        format={"YYYY-MM-DD"}
       />
       <Button type="primary" onClick={handleSubmit} style={{ width: "100%" }}>
         Set Deadline
