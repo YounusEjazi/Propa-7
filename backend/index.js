@@ -52,12 +52,15 @@ const exerciseSchema = new mongoose.Schema({
   title: String,
   description: String,
   img: String,
-  details: String, // New field for additional details
+  details: String,
   date: { type: Date, default: Date.now },
-  createdBy: String
+  createdBy: String,
+  progress: { type: Number, default: 5 },
+  solvedAreas: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PredefinedArea' }]
 });
 
 const Exercise = mongoose.model("Exercise", exerciseSchema);
+
 
 // Material Schema
 const materialSchema = new mongoose.Schema({
@@ -105,6 +108,13 @@ const predefinedAreaSchema = new mongoose.Schema({
 
 const PredefinedArea = mongoose.model("PredefinedArea", predefinedAreaSchema);
 
+const deadlineSchema =  new mongoose.Schema({
+  exerciseId: { type: String, ref: 'Exercise'},
+  deadline: Date,
+
+  });
+
+const Deadline = mongoose.model("Deadline", deadlineSchema);
 // Middleware for verifying token
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
@@ -327,6 +337,40 @@ app.post('/update-exercise/:id', verifyToken, async (req, res) => {
 });
 
 
+// Update exercise progress
+app.post('/update-exercise-progress/:id', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  try {
+    console.log('Received data:', req.body); // Debug log
+    const exercise = await Exercise.findOne({ id: req.params.id });
+    if (!exercise) {
+      console.log('Exercise not found'); // Log if exercise is not found
+      return res.status(404).json({ status: 'error', message: 'Exercise not found' });
+    }
+
+    const { progress, solvedAreaId } = req.body;
+
+    exercise.progress = progress;
+    if (solvedAreaId && !exercise.solvedAreas.includes(solvedAreaId)) {
+      exercise.solvedAreas.push(solvedAreaId);
+    }
+
+    await exercise.save();
+    console.log('Updated exercise:', exercise); // Log the updated exercise
+
+    res.status(200).json({ status: 'ok', message: 'Exercise progress updated successfully' });
+  } catch (err) {
+    console.error('Error:', err); // Debug log
+    res.status(500).send(err);
+  }
+});
+
+
+
+
 // Add supportive material (Admin only)
 app.post('/add-materials', verifyToken, upload.single('file'), async (req, res) => {
   if (req.user.userType !== 'Admin') {
@@ -505,6 +549,60 @@ app.get('/get-predefined-areas/:exerciseId', verifyToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+//Deadlines-methods
+app.post('/add-deadline', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'Admin') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  const { exerciseId, date } = req.body;
+
+  // Validate that the exerciseId exists in the Exercise collection
+  const exercise = await Exercise.findOne({ id: exerciseId });
+  if (!exercise) {
+    return res.status(400).json({ status: 'error', message: 'Invalid exercise ID' });
+  }
+
+  const newDeadline = new Deadline({exerciseId, deadline: date });
+
+  try {
+    await newDeadline.save();
+    res.status(201).json({ status: 'ok', message: 'Deadline added successfully', data: newDeadline });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get materials by exercise ID
+app.get('/get-deadlines', verifyToken, async (req, res) => {
+  try {
+    const deadlines = await Deadline.find();
+    res.status(200).json({ status: 'ok', data: deadlines });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// // Get materials by exercise ID
+app.get('/get-deadline/:exerciseId', verifyToken, async (req, res) => {
+  try {
+    const deadline = await Deadline.find({ exerciseId: req.params.exerciseId });
+    res.status(200).json({ status: 'ok', data: deadline });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// // Delete supportive material
+// app.delete('/delete-material', verifyToken, async (req, res) => {
+//   try {
+//     await Material.deleteOne({ _id: req.body.id });
+//     res.status(200).json({ status: 'ok', data: true });
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

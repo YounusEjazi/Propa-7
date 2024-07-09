@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { faTrash, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Modal, Button } from "antd";
 
 export default function AdminHome() {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [deleteInfo, setDeleteInfo] = useState({ id: null, name: "" });
 
   useEffect(() => {
     getAllUser();
@@ -28,33 +31,41 @@ export default function AdminHome() {
     window.location.href = "./sign-in";
   };
 
+  const showDeleteModal = (id, name) => {
+    setDeleteInfo({ id, name });
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    deleteUser(deleteInfo.id, deleteInfo.name);
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   const deleteUser = (id, name) => {
-    if (window.confirm(`Are you sure you want to delete ${name}`)) {
-      fetch("http://localhost:3000/deleteUser", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${window.localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          userid: id,
-        }),
+    fetch("http://localhost:3000/deleteUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        userid: id,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "ok") {
+          getAllUser(); // Refresh the list after deletion
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === "ok") {
-            // alert(data.message);
-            getAllUser(); // Refresh the list after deletion
-          } else {
-            // alert(data.message);
-          }
-        })
-        .catch((error) => {
-          console.error("Error deleting user:", error);
-          // alert("An error occurred while deleting the user.");
-        });
-    }
+      .catch((error) => {
+        console.error("Error deleting user:", error);
+      });
   };
 
   const handleSearch = (e) => {
@@ -102,16 +113,28 @@ export default function AdminHome() {
                 <td>{i.email}</td>
                 <td>{i.userType}</td>
                 <td>
-                  <FontAwesomeIcon icon={faTrash} onClick={() => deleteUser(i._id, i.fname)} />
+                  <FontAwesomeIcon icon={faTrash} onClick={() => showDeleteModal(i._id, i.fname)} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <button onClick={logOut} className="btn btn-primary" style={{ marginTop: 10 }}>
+        <Button onClick={logOut} className="btn btn-primary" style={{ marginTop: 10 }}>
           Log Out
-        </button>
+        </Button>
       </div>
+
+      <Modal
+        title="Delete User"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Delete"
+        okButtonProps={{ danger: true }}
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to delete {deleteInfo.name}?</p>
+      </Modal>
     </div>
   );
 }

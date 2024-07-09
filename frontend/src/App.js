@@ -1,4 +1,5 @@
 // src/App.js
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,7 +18,9 @@ import Exercises from './components/Exercises';
 import Materials from './components/Materials';
 import AdminHome from './components/adminHome';
 import FeedbackPage from './components/feedbackPage';
+import SetDeadline from './components/setDeadline'; // Adjust the path as per your file structure
 import Help from './components/Help'; // Import the new Help component
+import Footer from './components/Footer'; // Import the Footer component
 
 function ProtectedRoute({ element: Component, ...rest }) {
   const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
@@ -67,21 +70,25 @@ function App() {
       <BrowserRouter>
         {isLoggedIn && <NavBar handleNavToggle={handleNavToggle} isNavOpen={isNavOpen} />}
         {isLoggedIn && <Sidebar user={user} isNavOpen={isNavOpen} handleNavToggle={handleNavToggle} />}
-        <Routes>
-          <Route path="/" element={isLoggedIn ? <UserDetails /> : <Login />} />
-          <Route path="/sign-in" element={<Login />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/userDetails" element={<ProtectedRoute element={UserDetails} />} />
-          <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
-          <Route path="/exDetails/:id" element={<ProtectedRoute element={ExerciseDetails} />} />
-          <Route path="/addExercise" element={<ProtectedRoute element={AddExercise} />} />
-          <Route path="/exercises" element={<ProtectedRoute element={Exercises} />} />
-          <Route path="/materials" element={<ProtectedRoute element={Materials} />} />
-          <Route path="/admin/users" element={<ProtectedRoute element={AdminHome} />} />
-          <Route path="/feedback" element={<ProtectedRoute element={FeedbackPage} />} />
-          <Route path="/help-page" element={<ProtectedRoute element={Help} />} /> {/* Add the Help route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="content-wrapper">
+          <Routes>
+            <Route path="/" element={isLoggedIn ? <UserDetails /> : <Login />} />
+            <Route path="/sign-in" element={<Login />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/userDetails" element={<ProtectedRoute element={UserDetails} />} />
+            <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
+            <Route path="/exDetails/:id" element={<ProtectedRoute element={ExerciseDetails} />} />
+            <Route path="/addExercise" element={<ProtectedRoute element={AddExercise} />} />
+            <Route path="/exercises" element={<ProtectedRoute element={Exercises} />} />
+            <Route path="/materials" element={<ProtectedRoute element={Materials} />} />
+            <Route path="/admin/users" element={<ProtectedRoute element={AdminHome} />} />
+            <Route path="/feedback" element={<ProtectedRoute element={FeedbackPage} />} />
+            <Route path="/exercise/:id/deadline" element={<ProtectedRoute element={SetDeadline} />} />
+            <Route path="/help-page" element={<ProtectedRoute element={Help} />} /> {/* Add the Help route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Footer /> {/* Add the Footer component */}
+        </div>
       </BrowserRouter>
     </div>
   );
