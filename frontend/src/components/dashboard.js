@@ -75,5 +75,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
-ReactDOM.render(<Dashboard />, document.getElementById('root'));
