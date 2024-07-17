@@ -8,6 +8,7 @@ const Exercises = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
+  const [deadlines, setDeadlines] = useState([]);
 
   useEffect(() => {
     fetch("http://localhost:3000/get-exercises", {
@@ -23,6 +24,23 @@ const Exercises = () => {
           setExercises(data.data);
         } else {
           console.error("Failed to fetch exercises");
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+
+    fetch(`http://localhost:3000/get-deadlines`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "ok") {
+          setDeadlines(data.data);
+        } else {
+          console.error("Failed to fetch materials");
         }
       })
       .catch((error) => console.error("Error:", error));
@@ -71,41 +89,62 @@ const Exercises = () => {
     <section className="courses">
       <h1 className="heading">Our Exercises</h1>
       <div className="box-container">
-        {exercises.map((exercise) => (
-          <div className="box" key={exercise.id}>
-            <div className="tutor">
-              <img
-                src={
-                  exercise.creatorImg
-                    ? `http://localhost:3000${exercise.creatorImg}`
-                    : "/user.png"
-                }
-                alt="Creator"
-                className="creator-img"
-              />
-              <div className="info">
-                <h3>{exercise.title}</h3>
-                <span>{formatDate(exercise.date)}</span>
+        {exercises.map((exercise) => {
+          let disabled;
+          if (deadlines.length > 0) {
+            disabled =
+              new Date(
+                deadlines
+                  .reverse()
+                  .find(
+                    (deadline) => deadline.exerciseId === exercise.id
+                  ).deadline
+              ) < new Date();
+          }
+
+          return (
+            <div className="box" key={exercise.id}>
+              <div className="tutor">
+                <img
+                  src={
+                    exercise.creatorImg
+                      ? `http://localhost:3000${exercise.creatorImg}`
+                      : "/user.png"
+                  }
+                  alt="Creator"
+                  className="creator-img"
+                />
+                <div className="info">
+                  <h3>{exercise.title}</h3>
+                  <span>{formatDate(exercise.date)}</span>
+                </div>
               </div>
+              <div className="thumb">
+                <img src={exercise.img} alt={exercise.title} />
+                <span>{exercise.description}</span>
+              </div>
+              <h3 className="title">{exercise.title}</h3>
+              <div>
+                {disabled ? (
+                  <span style={{ height: "4rem" }}>Expired</span>
+                ) : (
+                  <Link to={`/exDetails/${exercise.id}`} className="inline-btn">
+                    View Exercise
+                  </Link>
+                )}
+              </div>
+
+              {user && user.userType === "Admin" && (
+                <button
+                  className="delete-btn"
+                  onClick={() => showDeleteModal(exercise.id)}
+                >
+                  Delete
+                </button>
+              )}
             </div>
-            <div className="thumb">
-              <img src={exercise.img} alt={exercise.title} />
-              <span>{exercise.description}</span>
-            </div>
-            <h3 className="title">{exercise.title}</h3>
-            <Link to={`/exDetails/${exercise.id}`} className="inline-btn">
-              View Exercise
-            </Link>
-            {user && user.userType === "Admin" && (
-              <button
-                className="delete-btn"
-                onClick={() => showDeleteModal(exercise.id)}
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <Modal

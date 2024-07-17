@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, componentDidMount } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./exDetails.css";
 import { Button, Card, Input, Space, Select, Modal } from "antd";
@@ -12,6 +12,7 @@ const ExerciseDetails = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const { id } = useParams();
   const navigate = useNavigate();
+  const [hasExpired, setHasExpired] = useState(true);
   const [exercise, setExercise] = useState();
   const [deadline, setDeadline] = useState();
   const [exerciseDetails, setExerciseDetails] = useState("");
@@ -156,6 +157,11 @@ const ExerciseDetails = () => {
           const dateString = data.data[data.data.length - 1].deadline;
           const date = new Date(dateString);
 
+          console.log("Here is the date: ", new Date(dateString));
+
+          console.log("Has expired ", new Date(dateString) < new Date());
+          setHasExpired(new Date(dateString) < new Date());
+
           const formattedDate = date.toLocaleDateString("de-DE", {
             day: "2-digit",
             month: "2-digit",
@@ -167,8 +173,7 @@ const ExerciseDetails = () => {
         }
       })
       .catch((error) => console.error("Error:", error));
-  }, [id]);
-
+  }, []);
 
   const handleElementClick = (item) => {
     if (!selectedSection) {
@@ -176,7 +181,7 @@ const ExerciseDetails = () => {
       setModalVisible(true);
       return;
     }
-  
+
     const predefinedArea = predefinedAreas.find(
       (area) =>
         area.elementId === item.id &&
@@ -185,9 +190,9 @@ const ExerciseDetails = () => {
         area.endX === selectedSection.endX &&
         area.endY === selectedSection.endY
     );
-  
+
     const box = document.getElementById("box4");
-  
+
     if (predefinedArea) {
       setModalContent("Correct Answer!");
       setModalVisible(true);
@@ -196,11 +201,17 @@ const ExerciseDetails = () => {
       setTimeout(() => {
         box.classList.remove("correct");
       }, 1000);
-  
+
       setSolvedAreas((prev) => {
         const updatedSolvedAreas = [...prev, predefinedArea];
-        const progress = Math.round((updatedSolvedAreas.length / predefinedAreas.length) * 100);
-        console.log('Updating progress with:', { id, predefinedArea: predefinedArea._id, progress });
+        const progress = Math.round(
+          (updatedSolvedAreas.length / predefinedAreas.length) * 100
+        );
+        console.log("Updating progress with:", {
+          id,
+          predefinedArea: predefinedArea._id,
+          progress,
+        });
         updateProgress(id, predefinedArea._id, progress); // Update progress
         return updatedSolvedAreas;
       });
@@ -223,8 +234,7 @@ const ExerciseDetails = () => {
       }, 1000);
     }
   };
-  
-  
+
   const handleAddMaterial = (material) => {
     fetch("http://localhost:3000/add-materials", {
       method: "POST",
@@ -335,32 +345,34 @@ const ExerciseDetails = () => {
   };
 
   const updateProgress = (exerciseId, solvedAreaId, progress) => {
-    console.log('updateProgress called with:', { exerciseId, solvedAreaId, progress });
+    console.log("updateProgress called with:", {
+      exerciseId,
+      solvedAreaId,
+      progress,
+    });
     fetch(`http://localhost:3000/update-exercise-progress/${exerciseId}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify({ progress, solvedAreaId }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Response from server:', data);
-        if (data.status === 'ok') {
+        console.log("Response from server:", data);
+        if (data.status === "ok") {
           setExercise((prevExercise) => ({
             ...prevExercise,
             progress,
             solvedAreas: [...prevExercise.solvedAreas, solvedAreaId],
           }));
         } else {
-          console.error('Failed to update progress:', data.message);
+          console.error("Failed to update progress:", data.message);
         }
       })
-      .catch((error) => console.error('Error in updateProgress:', error));
+      .catch((error) => console.error("Error in updateProgress:", error));
   };
-  
-
 
   if (!exercise) {
     return <div>Loading...</div>;
@@ -378,6 +390,7 @@ const ExerciseDetails = () => {
       <section className="playlist-details">
         <h1 className="heading">Exercise Information</h1>
         {deadline && <h4>Deadline {deadline}</h4>}
+        {hasExpired.toString()}
         <div className="row">
           <div className="column">
             <div style={{ position: "relative" }}>
