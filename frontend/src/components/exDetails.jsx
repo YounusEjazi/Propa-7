@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useState, componentDidMount } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./exDetails.css";
-import { Button, Card, Input, Space, Select, Modal } from "antd";
+import { Button, Card, Input, Space, Select, Modal } from "antd"; // Import Modal from Ant Design
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import SelectableSection from "./selectable";
@@ -12,6 +14,7 @@ const ExerciseDetails = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const { id } = useParams();
   const navigate = useNavigate();
+  const [hasExpired, setHasExpired] = useState(true);
   const [exercise, setExercise] = useState();
   const [deadline, setDeadline] = useState();
   const [exerciseDetails, setExerciseDetails] = useState("");
@@ -95,7 +98,9 @@ const ExerciseDetails = () => {
         if (data.status === "ok") {
           setExercise(data.data);
           setExerciseDetails(data.data.details || "");
+
           setSolvedAreas(data.data.solvedAreas || []); // Initialize solved areas from the database
+
         } else {
           console.error("Failed to fetch exercise details");
         }
@@ -156,6 +161,14 @@ const ExerciseDetails = () => {
           const dateString = data.data[data.data.length - 1].deadline;
           const date = new Date(dateString);
 
+
+          console.log("Here is the date: ", new Date(dateString));
+
+          console.log("Has expired ", new Date(dateString) < new Date());
+          setHasExpired(new Date(dateString) < new Date());
+
+
+
           const formattedDate = date.toLocaleDateString("de-DE", {
             day: "2-digit",
             month: "2-digit",
@@ -167,7 +180,8 @@ const ExerciseDetails = () => {
         }
       })
       .catch((error) => console.error("Error:", error));
-  }, [id]);
+
+  }, []);
 
 
   const handleElementClick = (item) => {
@@ -185,9 +199,11 @@ const ExerciseDetails = () => {
         area.endX === selectedSection.endX &&
         area.endY === selectedSection.endY
     );
-  
+
+
     const box = document.getElementById("box4");
-  
+
+
     if (predefinedArea) {
       setModalContent("Correct Answer!");
       setModalVisible(true);
@@ -311,6 +327,7 @@ const ExerciseDetails = () => {
   const handleSaveDetails = () => {
     fetch(`http://localhost:3000/update-exercise/${id}`, {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -341,11 +358,27 @@ const ExerciseDetails = () => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
+
       },
       body: JSON.stringify({ progress, solvedAreaId }),
     })
       .then((response) => response.json())
       .then((data) => {
+
+        if (data.status === "ok") {
+          setModalContent("Exercise details updated successfully");
+          setModalVisible(true);
+          setIsEditing(false);
+        } else {
+          console.error("Failed to update exercise details");
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+
         console.log('Response from server:', data);
         if (data.status === 'ok') {
           setExercise((prevExercise) => ({
@@ -358,6 +391,7 @@ const ExerciseDetails = () => {
         }
       })
       .catch((error) => console.error('Error in updateProgress:', error));
+
   };
   
 
@@ -378,6 +412,9 @@ const ExerciseDetails = () => {
       <section className="playlist-details">
         <h1 className="heading">Exercise Information</h1>
         {deadline && <h4>Deadline {deadline}</h4>}
+
+        {hasExpired.toString()}
+
         <div className="row">
           <div className="column">
             <div style={{ position: "relative" }}>

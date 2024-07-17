@@ -71,6 +71,8 @@ function App() {
       <BrowserRouter>
         {isLoggedIn && <NavBar handleNavToggle={handleNavToggle} isNavOpen={isNavOpen} />}
         {isLoggedIn && <Sidebar user={user} isNavOpen={isNavOpen} handleNavToggle={handleNavToggle} />}
+
+
         <div className="content-wrapper">
           <Routes>
             <Route path="/" element={isLoggedIn ? <UserDetails /> : <Login />} />
@@ -92,6 +94,7 @@ function App() {
           </Routes>
           <Footer /> {/* Add the Footer component */}
         </div>
+
       </BrowserRouter>
     </div>
   );
