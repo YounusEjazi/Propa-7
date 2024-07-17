@@ -77,6 +77,12 @@ function Sidebar({ user, isNavOpen, handleNavToggle }) {
             </Link>
           </>
         )}
+        {user && user.userType === "User" && (
+          <Link to="/portfolio" onClick={handleNavToggle}>
+            <FontAwesomeIcon icon={faBook} />
+            <span>Portfolio</span>
+          </Link>
+        )}
       </nav>
     </div>
   );

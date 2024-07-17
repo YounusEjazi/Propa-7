@@ -8,7 +8,9 @@ const Exercises = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
+
   const [deadlines, setDeadlines] = useState([]);
+
 
   useEffect(() => {
     fetch("http://localhost:3000/get-exercises", {
@@ -28,6 +30,7 @@ const Exercises = () => {
       })
       .catch((error) => console.error("Error:", error));
 
+
     fetch(`http://localhost:3000/get-deadlines`, {
       method: "GET",
       headers: {
@@ -44,6 +47,7 @@ const Exercises = () => {
         }
       })
       .catch((error) => console.error("Error:", error));
+
   }, []);
 
   const showDeleteModal = (id) => {
@@ -89,6 +93,7 @@ const Exercises = () => {
     <section className="courses">
       <h1 className="heading">Our Exercises</h1>
       <div className="box-container">
+
         {exercises.map((exercise) => {
           let disabled;
           if (deadlines.length > 0) {
@@ -118,6 +123,7 @@ const Exercises = () => {
                   <h3>{exercise.title}</h3>
                   <span>{formatDate(exercise.date)}</span>
                 </div>
+
               </div>
               <div className="thumb">
                 <img src={exercise.img} alt={exercise.title} />
@@ -143,8 +149,29 @@ const Exercises = () => {
                 </button>
               )}
             </div>
+
           );
         })}
+
+            <div className="thumb">
+              <img src={exercise.img} alt={exercise.title} />
+              <span>{exercise.description}</span>
+            </div>
+            <h3 className="title">{exercise.title}</h3>
+            <Link to={`/exDetails/${exercise.id}`} className="inline-btn">
+              View Exercise
+            </Link>
+            {user && user.userType === "Admin" && (
+              <button
+                className="delete-btn"
+                onClick={() => showDeleteModal(exercise.id)}
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        ))}
+
       </div>
 
       <Modal

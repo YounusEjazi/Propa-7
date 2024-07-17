@@ -6,7 +6,8 @@ body {
 
 .dashboard {
   display: flex;
-  height: 100vh;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .main-content {
@@ -27,7 +28,7 @@ body {
 
 .box-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, fr));
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 1.5rem;
   justify-content: center;
   align-items: flex-start;
@@ -77,6 +78,47 @@ body {
 .inline-btn:hover {
   background-color: var(--black);
   color: var(--white);
+}
+
+.footer {
+  background-color: #003366; /* Darker blue */
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #ccc;
+  color: #fff;
+  z-index: 1300;
+}
+
+.footerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footerText {
+  flex: 1;
+  text-align: left;
+  font-size: 1.2rem; /* Bigger font */
+}
+
+.footerLinks {
+  flex: 2;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.footerLink {
+  margin: 0 10px;
+  font-size: 1.2rem; /* Bigger font */
+  color: #fff;
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
 }
 
 /* Other global styles */
