@@ -28,6 +28,7 @@ This project is a React-based dashboard application designed to manage user and 
   - [Exercises](#exercises)
   - [AddMaterialForm](#addmaterialform)
 - [API Endpoints](#api-endpoints)
+- [Backend Setup](#backend-setup)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -187,6 +188,41 @@ The application communicates with a backend server to fetch and manipulate data.
 - `POST /add-materials`: Adds new supporting materials.
 - `DELETE /delete-material`: Deletes a supporting material.
 - `POST /upload-image`: Uploads an image.
+- `POST /add-feedback`: Adds user feedback.
+- `GET /get-feedback`: Fetches user feedback.
+- `POST /add-predefined-area`: Adds a predefined area for exercises.
+- `GET /get-predefined-areas/:exerciseId`: Fetches predefined areas for a specific exercise.
+- `POST /add-deadline`: Adds a deadline for an exercise.
+- `GET /get-deadlines`: Fetches all deadlines.
+
+## Backend Setup
+
+1. Navigate to the backend directory:
+
+   \```bash
+   cd backend
+   \```
+
+2. Install the backend dependencies:
+
+   \```bash
+   npm install
+   \```
+
+3. Create a `.env` file in the root of the backend directory and add the following environment variables:
+
+   \```env
+   PORT=3000
+   MONGO_URL=your_mongodb_connection_string
+   SECRET_KEY=your_jwt_secret_key
+   ADMIN_SECRET_KEY=your_admin_secret_key
+   \```
+
+4. Start the backend server:
+
+   \```bash
+   node index.js
+   \```
 
 ## Contributing
 
