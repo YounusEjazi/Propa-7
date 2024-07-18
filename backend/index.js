@@ -9,6 +9,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -71,6 +72,21 @@ const materialSchema = new mongoose.Schema({
 });
 
 const Material = mongoose.model("Material", materialSchema);
+
+// Portfolio Schema and Model
+const portfolioSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+  folderName: { type: String, required: true },
+  files: [
+    {
+      title: { type: String },
+      filePath: { type: String },
+      uploadDate: { type: Date, default: Date.now }
+    }
+  ],
+});
+
+const Portfolio = mongoose.model('Portfolio', portfolioSchema);
 
 // Feedback Schema
 const feedbackSchema = new mongoose.Schema(
@@ -423,6 +439,89 @@ app.delete('/delete-material', verifyToken, async (req, res) => {
     res.status(200).json({ status: 'ok', data: true });
   } catch (error) {
     res.status(500).send(error);
+  }
+});
+
+
+// Portfolio 
+
+// Add files to portfolio
+app.post('/add-portfolio', verifyToken, upload.array('portfolioFiles', 5), async (req, res) => {
+  if (req.user.userType !== 'User') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  const userId = req.user.id;
+  const folderName = req.body.folderName;
+  console.log(folderName);
+
+  const files = req.files.map(file => ({
+    title: file.originalname,
+    filePath: `/uploads/${file.filename}`
+  }));
+
+  try {
+    // let portfolio = await Portfolio.findOne({ userId });
+
+    // if (portfolio) {
+    //   if (portfolio.files.length + files.length > 5) {
+    //     return res.status(400).json({ status: 'error', message: 'Cannot upload more than 5 files' });
+    //   }
+    //   portfolio.files.push(...files);
+    // } else {
+      const portfolio = new Portfolio({ userId, folderName, files });
+    // }
+
+    await portfolio.save();
+    res.status(201).json({ status: 'ok', message: 'Files added successfully', data: portfolio });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get portfolios by user ID
+app.get('/get-portfolio', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'User') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  try {
+    const portfolios = await Portfolio.find({ userId: req.user.id });
+    res.status(200).json({ status: 'ok', data: portfolios });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Delete file from portfolio
+app.delete('/delete-portfolio-file', verifyToken, async (req, res) => {
+  if (req.user.userType !== 'User') {
+    return res.status(403).json({ status: 'error', message: 'Access denied' });
+  }
+
+  const { folderName, fileId } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const portfolio = await Portfolio.findOne({ userId, folderName });
+    if (!portfolio) {
+      return res.status(404).json({ status: 'error', message: 'Portfolio not found' });
+    }
+
+    portfolio.files = portfolio.files.filter(file => file._id.toString() !== fileId);
+
+    console.log(portfolio.files.length);
+
+    if (portfolio.files.length === 0) {
+      console.log(portfolio);
+      await Portfolio.findOneAndDelete({ _id: portfolio._id });
+    } else {
+      await portfolio.save();
+    }
+    
+    res.status(200).json({ status: 'ok', message: 'File deleted successfully', data: portfolio });
+  } catch (err) {
+    res.status(500).send(err);
   }
 });
 
