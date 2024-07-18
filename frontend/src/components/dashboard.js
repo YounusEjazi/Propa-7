@@ -47,9 +47,13 @@ function Dashboard() {
             <div className="boxContainer">
               <div className="box1">
                 <h3 className="title">Completed Exercises</h3>
+
+                
                 <p className="likes"><span> </span></p>
                 <a href="#" className="inline-btn">View Progress</a>
                 <p className="likes">Total Mistakes: <span> </span></p>
+                {/* <a href="#" className="inline-btn">View Comments</a> */}
+
                 <Link to={`/feedback`} className="inline-btn">View Feedback</Link>
                 <p className="likes">Total Comments: <span>2</span></p>
                 <Link to={`/Exercises`} className="inline-btn">View Exercise</Link>
@@ -75,5 +79,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
-ReactDOM.render(<Dashboard />, document.getElementById('root'));

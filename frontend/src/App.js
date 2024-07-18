@@ -21,6 +21,7 @@ import FeedbackPage from './components/feedbackPage';
 import SetDeadline from './components/setDeadline'; // Adjust the path as per your file structure
 import Help from './components/Help'; // Import the new Help component
 import Footer from './components/Footer'; // Import the Footer component
+import Portfolio from './components/Portfolio';
 
 function ProtectedRoute({ element: Component, ...rest }) {
   const isLoggedIn = window.localStorage.getItem('loggedIn') === 'true';
@@ -70,6 +71,8 @@ function App() {
       <BrowserRouter>
         {isLoggedIn && <NavBar handleNavToggle={handleNavToggle} isNavOpen={isNavOpen} />}
         {isLoggedIn && <Sidebar user={user} isNavOpen={isNavOpen} handleNavToggle={handleNavToggle} />}
+
+
         <div className="content-wrapper">
           <Routes>
             <Route path="/" element={isLoggedIn ? <UserDetails /> : <Login />} />
@@ -85,10 +88,13 @@ function App() {
             <Route path="/feedback" element={<ProtectedRoute element={FeedbackPage} />} />
             <Route path="/exercise/:id/deadline" element={<ProtectedRoute element={SetDeadline} />} />
             <Route path="/help-page" element={<ProtectedRoute element={Help} />} /> {/* Add the Help route */}
+            <Route path="/portfolio" element={<ProtectedRoute element={Portfolio}/>} />
+            <Route path="/" exact></Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer /> {/* Add the Footer component */}
         </div>
+
       </BrowserRouter>
     </div>
   );
