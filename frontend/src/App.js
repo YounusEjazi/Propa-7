@@ -92,11 +92,11 @@ function App() {
             <Route path="/" exact></Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <Footer /> {/* Add the Footer component */}
         </div>
-
+        <Footer /> {/* Add the Footer component */}
       </BrowserRouter>
     </div>
+    
   );
 }
 
