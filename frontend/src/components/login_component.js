@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { notification } from 'antd';
+import styles from './Auth.module.css';
 
 export default function Login() {
   const [api, contextHolder] = notification.useNotification();
@@ -16,60 +17,51 @@ export default function Login() {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
+      body: JSON.stringify({ email, password }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
-          // alert("Login successful");
-          notification.success({message:"Login successful"})
+          notification.success({ message: "Login successful" });
           window.localStorage.setItem("token", data.data.token);
           window.localStorage.setItem("user", JSON.stringify(data.data.user));
           window.localStorage.setItem("loggedIn", true);
-          window.location.href = "./dashboard"; // Change this to the correct path for your dashboard
+          window.location.href = "./dashboard";
         } else {
-          // alert("Login failed. Please check your credentials and try again.");
+          notification.error({ message: "Login failed. Please check your credentials and try again." });
         }
       })
       .catch((error) => {
         console.error("Error during login:", error);
-        // alert("An error occurred. Please try again later.");
       });
   }
 
   return (
-    <div className="auth-wrapper">
-      { contextHolder }
-      <div className="auth-inner">
+    <div className={styles.container}>
+      {contextHolder}
+      <div className={styles.glassLoginForm}>
         <form onSubmit={handleSubmit}>
           <h3>Sign In</h3>
-          <div className="mb-3">
+          <div className={styles.inputGroup}>
             <label>Email address</label>
             <input
               type="email"
-              className="form-control"
+              className={styles.formControl}
               placeholder="Enter email"
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="mb-3">
+          <div className={styles.inputGroup}>
             <label>Password</label>
             <input
               type="password"
-              className="form-control"
+              className={styles.formControl}
               placeholder="Enter password"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div className="d-grid">
-            <button type="submit" className="btn btn-primary">
-              Submit
-            </button>
-          </div>
-          <p className="forgot-password text-right">
+          <button type="submit">Submit</button>
+          <p className={styles.forgotPassword}>
             <a href="/sign-up">Sign Up</a>
           </p>
         </form>

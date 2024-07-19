@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styles from './Auth.module.css';
 
 export default function SignUp() {
   const [fname, setFname] = useState("");
@@ -12,7 +13,7 @@ export default function SignUp() {
     e.preventDefault();
 
     if (userType === "Admin" && secretKey !== "Tragkonstruktion") {
-      // alert("Invalid Admin Secret Key");
+      alert("Invalid Admin Secret Key");
       return;
     }
 
@@ -34,10 +35,9 @@ export default function SignUp() {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
-          // alert("Registration Successful");
           window.location.href = "./sign-in";
         } else {
-          // alert(data.message || "Something went wrong");
+          alert(data.message || "Something went wrong");
         }
       })
       .catch((error) => {
@@ -47,80 +47,80 @@ export default function SignUp() {
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-inner">
+    <div className={styles.container}>
+      <div className={styles.glassLoginForm}>
         <form onSubmit={handleSubmit}>
           <h3>Sign Up</h3>
-          <div>
+          <div className={styles.radioGroup}>
             Register As
-            <input
-              type="radio"
-              name="UserType"
-              value="User"
-              onChange={(e) => setUserType(e.target.value)}
-            />
-            User
-            <input
-              type="radio"
-              name="UserType"
-              value="Admin"
-              onChange={(e) => setUserType(e.target.value)}
-            />
-            Admin
+            <div>
+              <input
+                type="radio"
+                name="UserType"
+                value="User"
+                onChange={(e) => setUserType(e.target.value)}
+              />
+              User
+            </div>
+            <div>
+              <input
+                type="radio"
+                name="UserType"
+                value="Admin"
+                onChange={(e) => setUserType(e.target.value)}
+              />
+              Admin
+            </div>
           </div>
           {userType === "Admin" && (
-            <div className="mb-3">
+            <div className={styles.inputGroup}>
               <label>Secret Key</label>
               <input
                 type="text"
-                className="form-control"
+                className={styles.formControl}
                 placeholder="Secret Key"
                 onChange={(e) => setSecretKey(e.target.value)}
               />
             </div>
           )}
-          <div className="mb-3">
+          <div className={styles.inputGroup}>
             <label>First name</label>
             <input
               type="text"
-              className="form-control"
+              className={styles.formControl}
               placeholder="First name"
               onChange={(e) => setFname(e.target.value)}
             />
           </div>
-          <div className="mb-3">
+          <div className={styles.inputGroup}>
             <label>Last name</label>
             <input
               type="text"
-              className="form-control"
+              className={styles.formControl}
               placeholder="Last name"
               onChange={(e) => setLname(e.target.value)}
             />
           </div>
-          <div className="mb-3">
+          <div className={styles.inputGroup}>
             <label>Email address</label>
             <input
               type="email"
-              className="form-control"
+              className={styles.formControl}
               placeholder="Enter email"
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="mb-3">
+          <div className={styles.inputGroup}>
             <label>Password</label>
             <input
               type="password"
-              className="form-control"
+              className={styles.formControl}
               placeholder="Enter password"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div className="d-grid">
-            <button type="submit" className="btn btn-primary">
-              Sign Up
-            </button>
-          </div>
-          <p className="forgot-password text-right">
+          <button type="submit">Sign Up</button>
+          <p className={styles.forgotPassword}>
             Already registered <a href="/sign-in">sign in?</a>
           </p>
         </form>
