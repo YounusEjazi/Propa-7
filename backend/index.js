@@ -88,6 +88,7 @@ const portfolioSchema = new mongoose.Schema({
 
 const Portfolio = mongoose.model('Portfolio', portfolioSchema);
 
+
 // Feedback Schema
 const feedbackSchema = new mongoose.Schema(
   {
@@ -155,6 +156,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+
+//upload profile picture
 app.post('/upload-profile-picture', verifyToken, upload.single('profilePicture'), async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -445,48 +448,36 @@ app.delete('/delete-material', verifyToken, async (req, res) => {
 
 // Portfolio 
 
-// Add files to portfolio
-app.post('/add-portfolio', verifyToken, upload.array('portfolioFiles', 5), async (req, res) => {
-  if (req.user.userType !== 'User') {
-    return res.status(403).json({ status: 'error', message: 'Access denied' });
-  }
-
+ // Portfolio routes
+ app.post('/upload-portfolio-file', verifyToken, upload.single('file'), async (req, res) => {
+  const { folderName } = req.body;
   const userId = req.user.id;
-  const folderName = req.body.folderName;
-  console.log(folderName);
-
-  const files = req.files.map(file => ({
-    title: file.originalname,
-    filePath: `/uploads/${file.filename}`
-  }));
 
   try {
-    // let portfolio = await Portfolio.findOne({ userId });
+    let portfolio = await Portfolio.findOne({ userId, folderName });
+    if (!portfolio) {
+      portfolio = new Portfolio({ userId, folderName, files: [] });
+    }
 
-    // if (portfolio) {
-    //   if (portfolio.files.length + files.length > 5) {
-    //     return res.status(400).json({ status: 'error', message: 'Cannot upload more than 5 files' });
-    //   }
-    //   portfolio.files.push(...files);
-    // } else {
-      const portfolio = new Portfolio({ userId, folderName, files });
-    // }
+    const newFile = {
+      title: req.file.originalname,
+      filePath: `/uploads/${req.file.filename}`,
+    };
 
+    portfolio.files.push(newFile);
     await portfolio.save();
-    res.status(201).json({ status: 'ok', message: 'Files added successfully', data: portfolio });
+
+    res.status(200).json({ status: 'ok', data: portfolio });
   } catch (err) {
     res.status(500).send(err);
   }
 });
 
-// Get portfolios by user ID
-app.get('/get-portfolio', verifyToken, async (req, res) => {
-  if (req.user.userType !== 'User') {
-    return res.status(403).json({ status: 'error', message: 'Access denied' });
-  }
+app.get('/get-portfolio-files', verifyToken, async (req, res) => {
+  const userId = req.user.id;
 
   try {
-    const portfolios = await Portfolio.find({ userId: req.user.id });
+    const portfolios = await Portfolio.find({ userId });
     res.status(200).json({ status: 'ok', data: portfolios });
   } catch (err) {
     res.status(500).send(err);
@@ -494,7 +485,7 @@ app.get('/get-portfolio', verifyToken, async (req, res) => {
 });
 
 // Delete file from portfolio
-app.delete('/delete-portfolio-file', verifyToken, async (req, res) => {
+app.delete('/delete-portfolio-files', verifyToken, async (req, res) => {
   if (req.user.userType !== 'User') {
     return res.status(403).json({ status: 'error', message: 'Access denied' });
   }
@@ -503,27 +494,44 @@ app.delete('/delete-portfolio-file', verifyToken, async (req, res) => {
   const userId = req.user.id;
 
   try {
+    // Find the portfolio
     const portfolio = await Portfolio.findOne({ userId, folderName });
     if (!portfolio) {
       return res.status(404).json({ status: 'error', message: 'Portfolio not found' });
     }
 
+    // Find the file in the portfolio
+    const fileToRemove = portfolio.files.find(file => file._id.toString() === fileId);
+    if (!fileToRemove) {
+      return res.status(404).json({ status: 'error', message: 'File not found' });
+    }
+
+    // Delete the file from the file system
+    const filePath = path.join(__dirname, 'uploads', path.basename(fileToRemove.filePath));
+    fs.unlink(filePath, err => {
+      if (err) {
+        console.error('Error deleting file from file system:', err);
+        return res.status(500).json({ status: 'error', message: 'Error deleting file from file system' });
+      }
+    });
+
+    // Remove file from the portfolio's files array
     portfolio.files = portfolio.files.filter(file => file._id.toString() !== fileId);
 
-    console.log(portfolio.files.length);
-
+    // If no files remain, delete the portfolio document
     if (portfolio.files.length === 0) {
-      console.log(portfolio);
-      await Portfolio.findOneAndDelete({ _id: portfolio._id });
+      await Portfolio.findByIdAndDelete(portfolio._id);
     } else {
       await portfolio.save();
     }
-    
+
     res.status(200).json({ status: 'ok', message: 'File deleted successfully', data: portfolio });
   } catch (err) {
+    console.error('Error deleting file from portfolio:', err);
     res.status(500).send(err);
   }
 });
+
 
 //Feedback
 app.post("/add-feedback", verifyToken, async (req, res) => {

@@ -1,0 +1,64 @@
+const portfolioSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+  folderName: { type: String, required: true },
+  files: [
+    {
+      title: { type: String },
+      filePath: { type: String },
+      uploadDate: { type: Date, default: Date.now }
+    }
+  ],
+});
+const Portfolio = mongoose.model('Portfolio', portfolioSchema);
+
+
+
+// Set up multer for storing uploaded files
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    },
+  });
+  const upload = multer({ storage });
+
+
+
+
+  // Portfolio routes
+app.post('/upload-portfolio-file', verifyToken, upload.single('file'), async (req, res) => {
+    const { folderName } = req.body;
+    const userId = req.user.id;
+  
+    try {
+      let portfolio = await Portfolio.findOne({ userId, folderName });
+      if (!portfolio) {
+        portfolio = new Portfolio({ userId, folderName, files: [] });
+      }
+  
+      const newFile = {
+        title: req.file.originalname,
+        filePath: `/uploads/${req.file.filename}`,
+      };
+  
+      portfolio.files.push(newFile);
+      await portfolio.save();
+  
+      res.status(200).json({ status: 'ok', data: portfolio });
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+  
+  app.get('/get-portfolio-files', verifyToken, async (req, res) => {
+    const userId = req.user.id;
+  
+    try {
+      const portfolios = await Portfolio.find({ userId });
+      res.status(200).json({ status: 'ok', data: portfolios });
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
